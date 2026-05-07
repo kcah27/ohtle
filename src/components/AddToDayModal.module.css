@@ -33,10 +33,7 @@
   flex: 1;
 }
 
-.emoji {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
+.emoji { font-size: 1.5rem; flex-shrink: 0; }
 
 .placeName {
   font-family: 'Playfair Display', serif;
@@ -66,7 +63,7 @@
 
 .subtitle {
   padding: 1rem 1.25rem 0.5rem;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 500;
   color: var(--light-text);
   text-transform: uppercase;
@@ -78,14 +75,14 @@
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  max-height: 320px;
+  max-height: 360px;
   overflow-y: auto;
 }
 
 .dayBtn {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.4rem;
   padding: 0.75rem 1rem;
   border-radius: 10px;
   border: 1px solid var(--border);
@@ -107,12 +104,19 @@
   cursor: not-allowed;
 }
 
+.dayTop {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+
 .dayNum {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 500;
   color: var(--accent);
   white-space: nowrap;
-  min-width: 40px;
+  min-width: 38px;
 }
 
 .dayDate {
@@ -123,15 +127,48 @@
 }
 
 .addTag {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--accent);
   font-weight: 500;
   white-space: nowrap;
 }
 
 .addedTag {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--green);
   font-weight: 500;
   white-space: nowrap;
+}
+
+.dayPlaces {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  padding-left: 2px;
+}
+
+.miniPlace {
+  font-size: 0.72rem;
+  color: var(--light-text);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.morePlaces {
+  font-size: 0.72rem;
+  color: var(--light-text);
+  padding: 0.15rem 0.4rem;
+}
+
+.emptyDay {
+  font-size: 0.72rem;
+  color: var(--light-text);
+  font-style: italic;
+  padding-left: 2px;
 }

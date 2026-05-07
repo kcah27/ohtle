@@ -38,7 +38,7 @@ export function usePlaces() {
           for (const place of result.value.results) {
             if (!seen.has(place.place_id)) {
               seen.add(place.place_id)
-              all.push(place)
+              all.push({ ...place, photoRef: place.photos?.[0]?.photo_reference || null })
             }
           }
         }

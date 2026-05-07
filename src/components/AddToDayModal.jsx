@@ -8,6 +8,8 @@ const TYPE_EMOJI = {
   museum: '🏺',
   park: '🌿',
   store: '🧵',
+  food: '🥘',
+  natural_feature: '⛰️',
 }
 
 function getEmoji(types) {
@@ -19,7 +21,7 @@ function getEmoji(types) {
 
 function formatDate(dateStr) {
   const date = new Date(dateStr + 'T12:00:00')
-  return date.toLocaleDateString('es-MX', { weekday: 'long', month: 'long', day: 'numeric' })
+  return date.toLocaleDateString('es-MX', { weekday: 'short', month: 'short', day: 'numeric' })
 }
 
 export default function AddToDayModal({ place, itinerary, onAdd, onClose }) {
@@ -49,10 +51,29 @@ export default function AddToDayModal({ place, itinerary, onAdd, onClose }) {
                 onClick={() => !alreadyAdded && onAdd(day.id)}
                 disabled={alreadyAdded}
               >
-                <span className={styles.dayNum}>Día {day.dayNumber}</span>
-                <span className={styles.dayDate}>{formatDate(day.date)}</span>
-                {alreadyAdded && <span className={styles.addedTag}>✓ Agregado</span>}
-                {!alreadyAdded && <span className={styles.addTag}>+ Agregar</span>}
+                <div className={styles.dayTop}>
+                  <span className={styles.dayNum}>Día {day.dayNumber}</span>
+                  <span className={styles.dayDate}>{formatDate(day.date)}</span>
+                  {alreadyAdded
+                    ? <span className={styles.addedTag}>✓ Agregado</span>
+                    : <span className={styles.addTag}>+ Agregar</span>
+                  }
+                </div>
+                {day.places.length > 0 && (
+                  <div className={styles.dayPlaces}>
+                    {day.places.slice(0, 3).map(p => (
+                      <span key={p.place_id} className={styles.miniPlace}>
+                        {getEmoji(p.types)} {p.name}
+                      </span>
+                    ))}
+                    {day.places.length > 3 && (
+                      <span className={styles.morePlaces}>+{day.places.length - 3} más</span>
+                    )}
+                  </div>
+                )}
+                {day.places.length === 0 && (
+                  <div className={styles.emptyDay}>Sin lugares aún</div>
+                )}
               </button>
             )
           })}

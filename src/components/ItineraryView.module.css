@@ -65,11 +65,7 @@
   color: var(--light-text);
 }
 
-.days {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
+.days { display: flex; flex-direction: column; gap: 1.5rem; }
 
 .daySection {
   background: var(--card-bg);
@@ -120,21 +116,37 @@
   text-align: center;
 }
 
-.places {
-  padding: 0.5rem 0;
-}
+.places { padding: 0.25rem 0; }
 
 .placeRow {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1.25rem;
+  padding: 0.65rem 1rem;
   border-bottom: 1px solid var(--border);
   transition: background 0.15s;
+  cursor: grab;
 }
 
 .placeRow:last-child { border-bottom: none; }
 .placeRow:hover { background: var(--sand); }
+.placeRow:active { cursor: grabbing; }
+
+.placeRow.dragOver {
+  border-top: 2px solid var(--accent);
+  background: rgba(196, 131, 74, 0.05);
+}
+
+.dragHandle {
+  font-size: 1.1rem;
+  color: var(--border);
+  flex-shrink: 0;
+  user-select: none;
+  letter-spacing: -2px;
+  cursor: grab;
+}
+
+.placeRow:hover .dragHandle { color: var(--light-text); }
 
 .placeIndex {
   width: 22px;
@@ -150,12 +162,32 @@
   flex-shrink: 0;
 }
 
-.placeEmoji { font-size: 1.2rem; flex-shrink: 0; }
+.placePhoto {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+.placeEmoji {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: var(--sand);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
 
 .placeInfo { flex: 1; min-width: 0; }
 
 .placeName {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 500;
   color: var(--dark);
   white-space: nowrap;
@@ -172,21 +204,17 @@
 }
 
 .placeType {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 500;
 }
 
-.placeRating {
-  font-size: 0.75rem;
-  color: #E8A83A;
-  font-weight: 500;
-}
+.placeRating { font-size: 0.75rem; color: #E8A83A; font-weight: 500; }
 
 .placeAddr {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--light-text);
   white-space: nowrap;
   overflow: hidden;

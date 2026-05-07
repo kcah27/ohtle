@@ -109,6 +109,27 @@ export function useItinerary() {
     if (activeItinerary?.id === itineraryId) setActiveItinerary(null)
   }, [itineraries, activeItinerary])
 
+  const reorderPlace = useCallback((itineraryId, dayId, fromIdx, toIdx) => {
+    const updated = itineraries.map(itin => {
+      if (itin.id !== itineraryId) return itin
+      return {
+        ...itin,
+        days: itin.days.map(day => {
+          if (day.id !== dayId) return day
+          const places = [...day.places]
+          const [moved] = places.splice(fromIdx, 1)
+          places.splice(toIdx, 0, moved)
+          return { ...day, places }
+        })
+      }
+    })
+    setItineraries(updated)
+    saveItineraries(updated)
+    if (activeItinerary?.id === itineraryId) {
+      setActiveItinerary(updated.find(i => i.id === itineraryId))
+    }
+  }, [itineraries, activeItinerary])
+
   return {
     itineraries,
     activeItinerary,
@@ -116,6 +137,7 @@ export function useItinerary() {
     createItinerary,
     addPlaceToDay,
     removePlaceFromDay,
-    deleteItinerary
+    deleteItinerary,
+    reorderPlace
   }
 }

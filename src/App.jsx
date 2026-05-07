@@ -14,7 +14,7 @@ export default function App() {
   const { loading, error, places, search, getPhotoUrl } = usePlaces()
   const {
     itineraries, activeItinerary, setActiveItinerary,
-    createItinerary, addPlaceToDay, removePlaceFromDay, deleteItinerary
+    createItinerary, addPlaceToDay, removePlaceFromDay, deleteItinerary, reorderPlace
   } = useItinerary()
 
   const [searched, setSearched] = useState(false)
@@ -70,6 +70,7 @@ export default function App() {
           onBack={() => setViewingItinerary(null)}
           onRemovePlace={removePlaceFromDay}
           onDelete={(id) => { handleDeleteItinerary(id); }}
+          onReorder={reorderPlace}
         />
         {showList && (
           <ItineraryList
