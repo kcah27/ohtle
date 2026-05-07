@@ -53,7 +53,7 @@ function renderStars(rating) {
   return '★'.repeat(full) + (half ? '½' : '')
 }
 
-export default function PlaceCard({ place, getPhotoUrl }) {
+export default function PlaceCard({ place, getPhotoUrl, activeItinerary, onAddToItinerary }) {
   const [imgError, setImgError] = useState(false)
   const photoRef = place.photos?.[0]?.photo_reference
   const photoUrl = !imgError && photoRef ? getPhotoUrl(photoRef) : null
@@ -68,11 +68,7 @@ export default function PlaceCard({ place, getPhotoUrl }) {
     <div className={styles.card}>
       <div className={styles.image}>
         {photoUrl ? (
-          <img
-            src={photoUrl}
-            alt={place.name}
-            onError={() => setImgError(true)}
-          />
+          <img src={photoUrl} alt={place.name} onError={() => setImgError(true)} />
         ) : (
           <span className={styles.emoji}>{getEmoji(place.types)}</span>
         )}
@@ -87,9 +83,7 @@ export default function PlaceCard({ place, getPhotoUrl }) {
             <>
               <span className={styles.stars}>{renderStars(place.rating)}</span>
               <span className={styles.rating}>{place.rating}</span>
-              <span className={styles.reviews}>
-                ({(place.user_ratings_total || 0).toLocaleString()})
-              </span>
+              <span className={styles.reviews}>({(place.user_ratings_total || 0).toLocaleString()})</span>
             </>
           )}
           {place.opening_hours !== undefined && (
@@ -99,19 +93,17 @@ export default function PlaceCard({ place, getPhotoUrl }) {
           )}
         </div>
 
-        {place.vicinity && (
-          <div className={styles.address}>{place.vicinity}</div>
-        )}
+        {place.vicinity && <div className={styles.address}>{place.vicinity}</div>}
 
         <div className={styles.actions}>
-          <a
-            href={mapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.mapBtn}
-          >
+          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className={styles.mapBtn}>
             Ver en Maps →
           </a>
+          {activeItinerary && (
+            <button className={styles.addBtn} onClick={() => onAddToItinerary(place)}>
+              + Itinerario
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -1,0 +1,214 @@
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  color: var(--earth);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  padding: 0.5rem 0;
+}
+
+.backBtn:hover { color: var(--accent); }
+
+.deleteBtn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: var(--light-text);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  padding: 0.4rem 0.85rem;
+}
+
+.deleteBtn:hover { border-color: #c0392b; color: #c0392b; }
+
+.heroCard {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.heroEmoji { font-size: 2.5rem; }
+
+.heroTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: var(--dark);
+  margin-bottom: 0.5rem;
+}
+
+.heroMeta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--light-text);
+}
+
+.days {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.daySection {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.dayHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--sand);
+}
+
+.dayNum {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dayDate {
+  font-size: 0.92rem;
+  color: var(--dark);
+  font-weight: 500;
+  flex: 1;
+  text-transform: capitalize;
+}
+
+.dayCount {
+  font-size: 0.75rem;
+  color: var(--light-text);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 0.15rem 0.6rem;
+  border-radius: 20px;
+}
+
+.emptyDay {
+  padding: 1.25rem;
+  font-size: 0.85rem;
+  color: var(--light-text);
+  font-style: italic;
+  text-align: center;
+}
+
+.places {
+  padding: 0.5rem 0;
+}
+
+.placeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.placeRow:last-child { border-bottom: none; }
+.placeRow:hover { background: var(--sand); }
+
+.placeIndex {
+  width: 22px;
+  height: 22px;
+  background: var(--accent);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.72rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.placeEmoji { font-size: 1.2rem; flex-shrink: 0; }
+
+.placeInfo { flex: 1; min-width: 0; }
+
+.placeName {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.placeMeta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 0.2rem;
+}
+
+.placeType {
+  font-size: 0.72rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+
+.placeRating {
+  font-size: 0.75rem;
+  color: #E8A83A;
+  font-weight: 500;
+}
+
+.placeAddr {
+  font-size: 0.75rem;
+  color: var(--light-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  color: var(--light-text);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.25rem;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.removeBtn:hover { color: #c0392b; }
+
+@media (max-width: 600px) {
+  .container { padding: 1.5rem 1rem 3rem; }
+  .heroCard { flex-direction: column; text-align: center; }
+  .heroMeta { justify-content: center; }
+}

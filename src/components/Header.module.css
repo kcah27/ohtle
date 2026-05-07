@@ -1,5 +1,5 @@
 .header {
-  padding: 1.25rem 2rem;
+  padding: 1rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -9,6 +9,7 @@
   top: 0;
   z-index: 100;
   backdrop-filter: blur(8px);
+  gap: 1rem;
 }
 
 .logo {
@@ -16,6 +17,7 @@
   font-size: 1.8rem;
   color: var(--dark);
   letter-spacing: -0.02em;
+  flex-shrink: 0;
 }
 
 .logo span {
@@ -23,19 +25,74 @@
   font-style: italic;
 }
 
-.tagline {
-  font-size: 0.75rem;
-  color: var(--light-text);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.activeTag {
+  font-size: 0.8rem;
+  color: var(--green);
+  background: rgba(61, 107, 79, 0.1);
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--earth);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.listBtn:hover { background: var(--sand); }
+
+.badge {
+  background: var(--accent);
+  color: white;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  padding: 0.1rem 0.45rem;
   font-weight: 500;
 }
 
-@media (max-width: 480px) {
-  .header {
-    padding: 1rem;
-  }
-  .logo {
-    font-size: 1.5rem;
-  }
+.newBtn {
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: white;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.newBtn:hover { background: var(--accent-hover); }
+
+@media (max-width: 600px) {
+  .header { padding: 0.75rem 1rem; }
+  .logo { font-size: 1.4rem; }
+  .activeTag { display: none; }
+  .listBtn span { display: none; }
+  .newBtn { padding: 0.5rem 0.75rem; font-size: 0.8rem; }
 }

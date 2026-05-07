@@ -111,6 +111,8 @@
 
 .actions {
   margin-top: auto;
+  display: flex;
+  gap: 0.5rem;
 }
 
 .mapBtn {
@@ -130,3 +132,19 @@
   border-color: var(--accent);
   color: var(--accent);
 }
+
+.addBtn {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: white;
+  background: var(--accent);
+  border: none;
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  transition: all 0.15s;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.addBtn:hover { background: var(--accent-hover); }

@@ -1,0 +1,137 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 18, 8, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+}
+
+.modal {
+  background: var(--card-bg);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(26, 18, 8, 0.2);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.25rem 1.25rem 0;
+  gap: 0.75rem;
+}
+
+.placeInfo {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.emoji {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.placeName {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--dark);
+  line-height: 1.3;
+}
+
+.placeAddr {
+  font-size: 0.78rem;
+  color: var(--light-text);
+  margin-top: 0.2rem;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: var(--light-text);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0.25rem;
+}
+
+.closeBtn:hover { color: var(--dark); }
+
+.subtitle {
+  padding: 1rem 1.25rem 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--light-text);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.days {
+  padding: 0 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.dayBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--sand);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  font-family: 'DM Sans', sans-serif;
+  width: 100%;
+}
+
+.dayBtn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--card-bg);
+}
+
+.dayBtn.added {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dayNum {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--accent);
+  white-space: nowrap;
+  min-width: 40px;
+}
+
+.dayDate {
+  font-size: 0.88rem;
+  color: var(--dark);
+  flex: 1;
+  text-transform: capitalize;
+}
+
+.addTag {
+  font-size: 0.78rem;
+  color: var(--accent);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.addedTag {
+  font-size: 0.78rem;
+  color: var(--green);
+  font-weight: 500;
+  white-space: nowrap;
+}
