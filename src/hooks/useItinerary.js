@@ -6,13 +6,21 @@ function loadItineraries() {
   try {
     const data = localStorage.getItem(STORAGE_KEY)
     return data ? JSON.parse(data) : []
-  } catch {
-    return []
-  }
+  } catch { return [] }
 }
 
 function saveItineraries(itineraries) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(itineraries))
+}
+
+function updateAndSave(itineraries, itineraryId, updater, setItineraries, activeItinerary, setActiveItinerary) {
+  const updated = itineraries.map(itin => itin.id !== itineraryId ? itin : updater(itin))
+  setItineraries(updated)
+  saveItineraries(updated)
+  if (activeItinerary?.id === itineraryId) {
+    setActiveItinerary(updated.find(i => i.id === itineraryId))
+  }
+  return updated
 }
 
 export function useItinerary() {
@@ -23,28 +31,12 @@ export function useItinerary() {
     const start = new Date(startDate)
     const end = new Date(endDate)
     const dayCount = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1
-
     const days = Array.from({ length: dayCount }, (_, i) => {
       const date = new Date(start)
       date.setDate(start.getDate() + i)
-      return {
-        id: `day-${i}`,
-        dayNumber: i + 1,
-        date: date.toISOString().split('T')[0],
-        places: []
-      }
+      return { id: `day-${Date.now()}-${i}`, dayNumber: i + 1, date: date.toISOString().split('T')[0], places: [], cityLabel: '' }
     })
-
-    const newItinerary = {
-      id: Date.now().toString(),
-      name,
-      destination,
-      startDate,
-      endDate,
-      days,
-      createdAt: new Date().toISOString()
-    }
-
+    const newItinerary = { id: Date.now().toString(), name, destination, startDate, endDate, days, createdAt: new Date().toISOString() }
     const updated = [...itineraries, newItinerary]
     setItineraries(updated)
     saveItineraries(updated)
@@ -53,53 +45,54 @@ export function useItinerary() {
   }, [itineraries])
 
   const addPlaceToDay = useCallback((itineraryId, dayId, place) => {
-    const updated = itineraries.map(itin => {
-      if (itin.id !== itineraryId) return itin
-      return {
-        ...itin,
-        days: itin.days.map(day => {
-          if (day.id !== dayId) return day
-          const alreadyAdded = day.places.some(p => p.place_id === place.place_id)
-          if (alreadyAdded) return day
-          return {
-            ...day,
-            places: [...day.places, {
-              place_id: place.place_id,
-              name: place.name,
-              types: place.types,
-              vicinity: place.vicinity,
-              rating: place.rating,
-              user_ratings_total: place.user_ratings_total,
-              opening_hours: place.opening_hours,
-              addedAt: new Date().toISOString()
-            }]
-          }
-        })
-      }
-    })
-    setItineraries(updated)
-    saveItineraries(updated)
-    if (activeItinerary?.id === itineraryId) {
-      setActiveItinerary(updated.find(i => i.id === itineraryId))
-    }
+    updateAndSave(itineraries, itineraryId, itin => ({
+      ...itin,
+      days: itin.days.map(day => {
+        if (day.id !== dayId) return day
+        if (day.places.some(p => p.place_id === place.place_id)) return day
+        return { ...day, places: [...day.places, { place_id: place.place_id, name: place.name, types: place.types, vicinity: place.vicinity, rating: place.rating, user_ratings_total: place.user_ratings_total, photoRef: place.photoRef || null, addedAt: new Date().toISOString() }] }
+      })
+    }), setItineraries, activeItinerary, setActiveItinerary)
   }, [itineraries, activeItinerary])
 
   const removePlaceFromDay = useCallback((itineraryId, dayId, placeId) => {
-    const updated = itineraries.map(itin => {
-      if (itin.id !== itineraryId) return itin
-      return {
-        ...itin,
-        days: itin.days.map(day => {
-          if (day.id !== dayId) return day
-          return { ...day, places: day.places.filter(p => p.place_id !== placeId) }
-        })
-      }
-    })
-    setItineraries(updated)
-    saveItineraries(updated)
-    if (activeItinerary?.id === itineraryId) {
-      setActiveItinerary(updated.find(i => i.id === itineraryId))
-    }
+    updateAndSave(itineraries, itineraryId, itin => ({
+      ...itin,
+      days: itin.days.map(day => day.id !== dayId ? day : { ...day, places: day.places.filter(p => p.place_id !== placeId) })
+    }), setItineraries, activeItinerary, setActiveItinerary)
+  }, [itineraries, activeItinerary])
+
+  // Move place within same day OR to another day
+  const movePlace = useCallback((itineraryId, fromDayId, fromIdx, toDayId, toIdx) => {
+    updateAndSave(itineraries, itineraryId, itin => {
+      let movedPlace = null
+      const days = itin.days.map(day => {
+        if (day.id !== fromDayId) return day
+        const places = [...day.places]
+        ;[movedPlace] = places.splice(fromIdx, 1)
+        return { ...day, places }
+      }).map(day => {
+        if (day.id !== toDayId) return day
+        const places = [...day.places]
+        // Avoid duplicate if same day
+        if (fromDayId === toDayId) {
+          places.splice(toIdx, 0, movedPlace)
+          return { ...day, places }
+        }
+        if (!places.some(p => p.place_id === movedPlace.place_id)) {
+          places.splice(toIdx, 0, movedPlace)
+        }
+        return { ...day, places }
+      })
+      return { ...itin, days }
+    }, setItineraries, activeItinerary, setActiveItinerary)
+  }, [itineraries, activeItinerary])
+
+  const updateDayLabel = useCallback((itineraryId, dayId, cityLabel) => {
+    updateAndSave(itineraries, itineraryId, itin => ({
+      ...itin,
+      days: itin.days.map(day => day.id !== dayId ? day : { ...day, cityLabel })
+    }), setItineraries, activeItinerary, setActiveItinerary)
   }, [itineraries, activeItinerary])
 
   const deleteItinerary = useCallback((itineraryId) => {
@@ -109,35 +102,5 @@ export function useItinerary() {
     if (activeItinerary?.id === itineraryId) setActiveItinerary(null)
   }, [itineraries, activeItinerary])
 
-  const reorderPlace = useCallback((itineraryId, dayId, fromIdx, toIdx) => {
-    const updated = itineraries.map(itin => {
-      if (itin.id !== itineraryId) return itin
-      return {
-        ...itin,
-        days: itin.days.map(day => {
-          if (day.id !== dayId) return day
-          const places = [...day.places]
-          const [moved] = places.splice(fromIdx, 1)
-          places.splice(toIdx, 0, moved)
-          return { ...day, places }
-        })
-      }
-    })
-    setItineraries(updated)
-    saveItineraries(updated)
-    if (activeItinerary?.id === itineraryId) {
-      setActiveItinerary(updated.find(i => i.id === itineraryId))
-    }
-  }, [itineraries, activeItinerary])
-
-  return {
-    itineraries,
-    activeItinerary,
-    setActiveItinerary,
-    createItinerary,
-    addPlaceToDay,
-    removePlaceFromDay,
-    deleteItinerary,
-    reorderPlace
-  }
+  return { itineraries, activeItinerary, setActiveItinerary, createItinerary, addPlaceToDay, removePlaceFromDay, movePlace, updateDayLabel, deleteItinerary }
 }
