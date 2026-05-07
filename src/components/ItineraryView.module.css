@@ -126,3 +126,8 @@
   .heroMeta { justify-content: center; }
   .dayHeader { flex-wrap: wrap; }
 }
+
+.dayDropZone {
+  border-color: var(--accent) !important;
+  background: rgba(196,131,74,0.04);
+}

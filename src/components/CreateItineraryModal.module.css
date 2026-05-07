@@ -137,3 +137,37 @@
 }
 
 .createBtn:hover { background: var(--accent-hover); }
+
+.modeRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  padding: 0 1.5rem 0.5rem;
+}
+
+.modeBtn {
+  padding: 0.65rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--sand);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--light-text);
+  transition: all 0.15s;
+}
+
+.modeBtn:hover { border-color: var(--accent); color: var(--accent); }
+
+.modeActive {
+  border-color: var(--accent);
+  background: rgba(196,131,74,0.08);
+  color: var(--accent);
+}
+
+.modeAuto:hover {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(61,107,79,0.08);
+}

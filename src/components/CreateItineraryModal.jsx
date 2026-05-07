@@ -1,26 +1,16 @@
 import React, { useState } from 'react'
 import styles from './CreateItineraryModal.module.css'
 
-export default function CreateItineraryModal({ onClose, onCreate }) {
-  const [form, setForm] = useState({
-    name: '',
-    destination: '',
-    startDate: '',
-    endDate: ''
-  })
+export default function CreateItineraryModal({ onClose, onCreate, onAuto }) {
+  const [form, setForm] = useState({ name: '', destination: '', startDate: '', endDate: '' })
   const [error, setError] = useState('')
-
   const today = new Date().toISOString().split('T')[0]
 
-  const handleChange = e => {
-    setForm(f => ({ ...f, [e.target.name]: e.target.value }))
-    setError('')
-  }
+  const handleChange = e => { setForm(f => ({ ...f, [e.target.name]: e.target.value })); setError('') }
 
   const getDayCount = () => {
     if (!form.startDate || !form.endDate) return 0
-    const diff = new Date(form.endDate) - new Date(form.startDate)
-    return Math.round(diff / (1000 * 60 * 60 * 24)) + 1
+    return Math.round((new Date(form.endDate) - new Date(form.startDate)) / 86400000) + 1
   }
 
   const handleSubmit = () => {
@@ -29,7 +19,7 @@ export default function CreateItineraryModal({ onClose, onCreate }) {
     if (!form.startDate) return setError('Selecciona la fecha de inicio')
     if (!form.endDate) return setError('Selecciona la fecha de fin')
     if (new Date(form.endDate) < new Date(form.startDate)) return setError('La fecha de fin debe ser después del inicio')
-    if (getDayCount() > 14) return setError('Máximo 14 días por itinerario')
+    if (getDayCount() > 21) return setError('Máximo 21 días por itinerario')
     onCreate(form)
   }
 
@@ -43,56 +33,36 @@ export default function CreateItineraryModal({ onClose, onCreate }) {
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
 
+        {/* Mode selector */}
+        <div className={styles.modeRow}>
+          <button className={`${styles.modeBtn} ${styles.modeManual} ${styles.modeActive}`}>
+            ✏️ Manual
+          </button>
+          <button className={`${styles.modeBtn} ${styles.modeAuto}`} onClick={() => { onClose(); onAuto() }}>
+            ✨ Automático
+          </button>
+        </div>
+
         <div className={styles.body}>
           <div className={styles.field}>
             <label>Nombre del viaje</label>
-            <input
-              name="name"
-              placeholder="ej. Escapada a Oaxaca"
-              value={form.name}
-              onChange={handleChange}
-            />
+            <input name="name" placeholder="ej. Escapada a Oaxaca" value={form.name} onChange={handleChange} />
           </div>
-
           <div className={styles.field}>
             <label>Destino principal</label>
-            <input
-              name="destination"
-              placeholder="ej. Oaxaca, México"
-              value={form.destination}
-              onChange={handleChange}
-            />
+            <input name="destination" placeholder="ej. Oaxaca, México" value={form.destination} onChange={handleChange} />
           </div>
-
           <div className={styles.dateRow}>
             <div className={styles.field}>
               <label>Fecha de inicio</label>
-              <input
-                type="date"
-                name="startDate"
-                min={today}
-                value={form.startDate}
-                onChange={handleChange}
-              />
+              <input type="date" name="startDate" min={today} value={form.startDate} onChange={handleChange} />
             </div>
             <div className={styles.field}>
               <label>Fecha de fin</label>
-              <input
-                type="date"
-                name="endDate"
-                min={form.startDate || today}
-                value={form.endDate}
-                onChange={handleChange}
-              />
+              <input type="date" name="endDate" min={form.startDate || today} value={form.endDate} onChange={handleChange} />
             </div>
           </div>
-
-          {days > 0 && (
-            <div className={styles.daysBadge}>
-              📅 {days} {days === 1 ? 'día' : 'días'} de viaje
-            </div>
-          )}
-
+          {days > 0 && <div className={styles.daysBadge}>📅 {days} {days === 1 ? 'día' : 'días'} de viaje</div>}
           {error && <div className={styles.error}>{error}</div>}
         </div>
 

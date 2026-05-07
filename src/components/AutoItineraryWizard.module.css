@@ -1,0 +1,117 @@
+.overlay {
+  position: fixed; inset: 0; background: rgba(26,18,8,0.55);
+  display: flex; align-items: center; justify-content: center; z-index: 200; padding: 1rem;
+}
+
+.modal {
+  background: var(--card-bg); border-radius: 20px;
+  width: 100%; max-width: 500px;
+  box-shadow: 0 24px 64px rgba(26,18,8,0.22);
+  display: flex; flex-direction: column;
+  max-height: 90vh; overflow: hidden;
+}
+
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.25rem 1.5rem 0;
+}
+
+.stepIndicator { display: flex; gap: 6px; }
+
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border); transition: all 0.2s;
+}
+.dotActive { background: var(--accent); transform: scale(1.2); }
+.dotDone { background: var(--green); }
+
+.closeBtn { background: none; border: none; font-size: 1rem; color: var(--light-text); cursor: pointer; }
+.closeBtn:hover { color: var(--dark); }
+
+.body {
+  padding: 1.5rem; flex: 1; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 1rem;
+}
+
+.stepTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem; color: var(--dark); font-weight: 600;
+}
+
+.stepSubtitle { font-size: 0.88rem; color: var(--light-text); margin-top: -0.5rem; }
+
+.fields { display: flex; flex-direction: column; gap: 0.85rem; }
+
+.field { display: flex; flex-direction: column; gap: 0.35rem; }
+.field label { font-size: 0.78rem; font-weight: 500; color: var(--light-text); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.input {
+  padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--sand); font-size: 0.95rem; color: var(--dark);
+  outline: none; transition: border-color 0.2s; font-family: 'DM Sans', sans-serif; width: 100%;
+}
+.input:focus { border-color: var(--accent); }
+.input::placeholder { color: var(--light-text); }
+
+.dateRow { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+.daysBadge {
+  background: rgba(61,107,79,0.1); color: var(--green);
+  border-radius: 10px; padding: 0.6rem 1rem;
+  font-size: 0.88rem; font-weight: 500; text-align: center;
+}
+
+/* Option cards (rhythm, company) */
+.optionGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.75rem; }
+
+.optionCard {
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+  padding: 1rem 0.75rem; border: 1.5px solid var(--border); border-radius: 14px;
+  background: var(--sand); cursor: pointer; transition: all 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.optionCard:hover { border-color: var(--accent); background: var(--card-bg); }
+.optionCard.selected { border-color: var(--accent); background: rgba(196,131,74,0.08); }
+
+.optionIcon { font-size: 1.8rem; }
+.optionLabel { font-size: 0.9rem; font-weight: 500; color: var(--dark); }
+.optionDesc { font-size: 0.75rem; color: var(--light-text); text-align: center; }
+
+/* Chips (interests, food) */
+.chipGrid { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+.chip {
+  padding: 0.55rem 1rem; border-radius: 20px;
+  border: 1.5px solid var(--border); background: var(--sand);
+  font-size: 0.88rem; color: var(--light-text); cursor: pointer;
+  transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.chipActive { background: var(--accent); color: white; border-color: var(--accent); }
+
+.error {
+  background: rgba(196,131,74,0.1); border: 1px solid var(--accent);
+  border-radius: 8px; padding: 0.6rem 1rem; color: var(--earth); font-size: 0.85rem;
+}
+
+.footer {
+  display: flex; gap: 0.75rem; padding: 1rem 1.5rem 1.5rem;
+  justify-content: flex-end; border-top: 1px solid var(--border);
+}
+
+.backBtn {
+  padding: 0.7rem 1.25rem; border-radius: 10px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--earth); font-size: 0.9rem; font-weight: 500;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+}
+.backBtn:hover { background: var(--sand); }
+
+.nextBtn {
+  padding: 0.7rem 1.5rem; border-radius: 10px; border: none;
+  background: var(--accent); color: white;
+  font-size: 0.9rem; font-weight: 500; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: background 0.2s;
+}
+.nextBtn:hover:not(:disabled) { background: var(--accent-hover); }
+.nextBtn:disabled { opacity: 0.6; cursor: not-allowed; }
