@@ -1,0 +1,40 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --sand: #F5F0E8;
+  --earth: #8B6B4A;
+  --dark: #1A1208;
+  --accent: #C4834A;
+  --accent-hover: #b0713e;
+  --green: #3D6B4F;
+  --light-text: #6B5A3E;
+  --card-bg: #FDFAF5;
+  --border: rgba(139, 107, 74, 0.2);
+  --border-hover: rgba(196, 131, 74, 0.4);
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--sand);
+  color: var(--dark);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+
+input {
+  font-family: 'DM Sans', sans-serif;
+}

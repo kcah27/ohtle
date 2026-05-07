@@ -1,0 +1,111 @@
+.container {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--sand);
+  font-size: 0.95rem;
+  color: var(--dark);
+  outline: none;
+  transition: border-color 0.2s;
+  min-width: 0;
+}
+
+.input:focus {
+  border-color: var(--accent);
+}
+
+.input::placeholder {
+  color: var(--light-text);
+}
+
+.btn {
+  padding: 0.75rem 1.1rem;
+  border-radius: 10px;
+  border: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.primary {
+  background: var(--accent);
+  color: white;
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.outline {
+  background: transparent;
+  color: var(--earth);
+  border: 1px solid var(--border);
+}
+
+.outline:hover:not(:disabled) {
+  background: var(--sand);
+  border-color: var(--border-hover);
+}
+
+.outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chips {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  background: var(--sand);
+  color: var(--light-text);
+  transition: all 0.15s;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.chip.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+@media (max-width: 600px) {
+  .row {
+    flex-direction: column;
+  }
+  .btn {
+    width: 100%;
+  }
+}

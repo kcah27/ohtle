@@ -1,0 +1,41 @@
+.header {
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: rgba(245, 240, 232, 0.95);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  color: var(--dark);
+  letter-spacing: -0.02em;
+}
+
+.logo span {
+  color: var(--accent);
+  font-style: italic;
+}
+
+.tagline {
+  font-size: 0.75rem;
+  color: var(--light-text);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 1rem;
+  }
+  .logo {
+    font-size: 1.5rem;
+  }
+}
