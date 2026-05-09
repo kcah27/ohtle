@@ -65,21 +65,38 @@ export function useItinerary() {
     updateAndSave(itineraries, itineraryId, itin => ({ ...itin, days: itin.days.map(day => day.id!==dayId ? day : {...day, places:day.places.map(p=>p.place_id!==placeId?p:{...p,...updates})}) }), setItineraries, activeItinerary, setActiveItinerary)
   }, [itineraries, activeItinerary])
 
-  const movePlace = useCallback((itineraryId, fromDayId, fromIdx, toDayId, toIdx) => {
-    console.log('MOVE', { fromDayId: fromDayId.slice(-4), toDayId: toDayId.slice(-4), fromIdx, toIdx, same: fromDayId===toDayId })
+  const movePlace = useCallback((itineraryId, fromDayId, placeId, toDayId, targetPlaceId) => {
     setItineraries(current => {
       const updated = current.map(itin => {
         if (itin.id !== itineraryId) return itin
         let moved = null
+        // Find fromIdx from CURRENT state
+        const fromDay = itin.days.find(d => d.id === fromDayId)
+        if (!fromDay) return itin
+        const fromIdx = fromDay.places.findIndex(p => p.place_id === placeId)
+        if (fromIdx === -1) return itin
+
+        // Find toIdx from CURRENT state
+        const toDay = itin.days.find(d => d.id === toDayId)
+        if (!toDay) return itin
+        let toIdx
+        if (!targetPlaceId) {
+          toIdx = toDay.places.length
+        } else {
+          toIdx = toDay.places.findIndex(p => p.place_id === targetPlaceId)
+          if (toIdx === -1) toIdx = toDay.places.length
+        }
+
+        console.log('MOVE FRESH', { fromIdx, toIdx, placeId: placeId?.slice(-6), targetPlaceId: targetPlaceId?.slice(-6), before: fromDay.places.map(p=>p.name?.slice(0,8)) })
+
         const days = itin.days.map(day => {
           if (day.id !== fromDayId) return day
           const p = [...day.places]
-          const beforeNames = p.map(x=>x.name?.slice(0,8))
           ;[moved] = p.splice(fromIdx, 1)
           if (fromDayId === toDayId) {
-            const insertAt = toIdx === 9999 ? p.length : toIdx
+            const insertAt = toIdx > fromIdx ? toIdx - 1 : toIdx
             p.splice(insertAt, 0, moved)
-            console.log('SPLICE RESULT', { before: beforeNames, after: p.map(x=>x.name?.slice(0,8)), fromIdx, insertAt })
+            console.log('SPLICE FRESH', { before: fromDay.places.map(p=>p.name?.slice(0,8)), after: p.map(p=>p.name?.slice(0,8)), fromIdx, insertAt })
             return { ...day, places: p }
           }
           return { ...day, places: p }
@@ -87,7 +104,7 @@ export function useItinerary() {
           if (day.id !== toDayId || fromDayId === toDayId) return day
           const p = [...day.places]
           if (!p.some(x => x.place_id === moved?.place_id)) {
-            p.splice(toIdx === 9999 ? p.length : toIdx, 0, moved)
+            p.splice(toIdx, 0, moved)
           }
           return { ...day, places: p }
         })

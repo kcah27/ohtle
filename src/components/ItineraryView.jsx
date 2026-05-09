@@ -354,38 +354,9 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
   }
 
   const handleMovePlace = useCallback((itineraryId, fromDayId, placeId, toDayId, toListIdx, targetPlaceId, targetEventId) => {
-    const fromDay = itinerary.days.find(d => d.id === fromDayId)
-    if (!fromDay) return
-    const realFromIdx = fromDay.places.findIndex(p => p.place_id === placeId)
-    if (realFromIdx === -1) return
-
-    const toDay = itinerary.days.find(d => d.id === toDayId)
-    if (!toDay) return
-
-    let realToIdx
-    if (toListIdx === 9999) {
-      realToIdx = 9999
-    } else if (targetPlaceId) {
-      const targetIdx = toDay.places.findIndex(p => p.place_id === targetPlaceId)
-      realToIdx = targetIdx === -1 ? toDay.places.length : targetIdx
-    } else {
-      const toMerged = buildMergedItemsStatic(toDay, itinerary.days)
-      realToIdx = toMerged.slice(0, toListIdx).filter(i => i.type === 'place').length
-    }
-
-    console.log('HANDLE MOVE PLACE', {
-      placeId: placeId?.slice(-6),
-      targetPlaceId: targetPlaceId?.slice(-6),
-      targetEventId: targetEventId?.slice(-6),
-      realFromIdx,
-      realToIdx,
-      toListIdx,
-      fromPlaces: fromDay.places.map((p,i) => `${i}:${p.name?.slice(0,8)}`),
-      toPlaces: toDay.places.map((p,i) => `${i}:${p.name?.slice(0,8)}`)
-    })
-
-    onMove(itineraryId, fromDayId, realFromIdx, toDayId, realToIdx)
-  }, [itinerary, onMove])
+    // Pass IDs directly to hook — hook finds indices from fresh state
+    onMove(itineraryId, fromDayId, placeId, toDayId, targetPlaceId || null)
+  }, [onMove])
 
   // Move event by event ID
   const handleMoveEvent = useCallback((itineraryId, fromDayId, eventId, toDayId, toListIdx) => {
