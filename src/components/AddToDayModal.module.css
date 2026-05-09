@@ -28,3 +28,5 @@
 .miniPlace { font-size: 0.68rem; color: var(--light-text); background: var(--card-bg); border: 1px solid var(--border); padding: 0.12rem 0.45rem; border-radius: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
 .morePlaces { font-size: 0.68rem; color: var(--light-text); padding: 0.12rem 0.35rem; }
 .emptyDay { font-size: 0.72rem; color: var(--light-text); font-style: italic; }
+
+.cityTag { font-size: 0.68rem; font-weight: 500; color: var(--green); background: rgba(61,107,79,0.1); padding: 0.1rem 0.45rem; border-radius: 20px; white-space: nowrap; }

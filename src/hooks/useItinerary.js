@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { inferCategory } from '../utils/placeCategory'
 
 const STORAGE_KEY = 'ohtle_itineraries'
 
@@ -45,7 +46,7 @@ export function useItinerary() {
       ...itin, days: itin.days.map(day => {
         if (day.id !== dayId) return day
         if (day.places.some(p => p.place_id === place.place_id)) return day
-        return { ...day, places: [...day.places, { place_id:place.place_id, name:place.name, types:place.types, vicinity:place.vicinity, rating:place.rating, user_ratings_total:place.user_ratings_total, photoRef:place.photoRef||null, category:place.category||'attraction', time:'', duration:'', note:'', addedAt:new Date().toISOString() }] }
+        return { ...day, places: [...day.places, { place_id:place.place_id, name:place.name, types:place.types, vicinity:place.vicinity, rating:place.rating, user_ratings_total:place.user_ratings_total, photoRef:place.photoRef||null, category: place.category || inferCategory(place.types), time:'', duration:'', note:'', addedAt:new Date().toISOString() }] }
       })
     }), setItineraries, activeItinerary, setActiveItinerary)
   }, [itineraries, activeItinerary])

@@ -65,6 +65,7 @@ export default function AddToDayModal({ place, itineraries, activeItinerary, onA
                     <div className={styles.dayTop}>
                       <span className={styles.dayNum}>Día {day.dayNumber}</span>
                       <span className={styles.dayDate}>{formatDate(day.date)}</span>
+                      {day.cityLabel && <span className={styles.cityTag}>{day.cityLabel}</span>}
                       {alreadyAdded ? <span className={styles.addedTag}>✓</span> : <span className={styles.addTag}>+ Agregar</span>}
                     </div>
                     {day.places.length > 0 && (
