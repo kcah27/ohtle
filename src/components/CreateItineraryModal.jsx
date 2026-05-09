@@ -75,7 +75,9 @@ export default function CreateItineraryModal({ onClose, onCreate, onAuto }) {
     if (days > 21) return setError('Máximo 21 días por itinerario')
     if (multiCity) {
       if (cities.some(c => !c.name.trim())) return setError('Ponle nombre a todas las ciudades')
-      if (cities.some(c => !c.startDate || !c.endDate)) return setError('Agrega fechas de llegada y salida a todas las ciudades')
+      // First city only needs endDate, rest need both
+      if (!cities[0].endDate) return setError('Agrega la fecha de salida a la primera ciudad')
+      if (cities.slice(1).some(c => !c.startDate || !c.endDate)) return setError('Agrega fechas de llegada y salida a todas las ciudades')
     }
     onCreate({ ...form, cities: multiCity ? cities : null })
   }
