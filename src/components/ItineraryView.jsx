@@ -252,12 +252,8 @@ function buildMergedItemsStatic(day, allDays) {
   day.places.forEach((p,i) => all.push({ type:'place', data:p, idx:i }))
   events.forEach((e,i) => {
     all.push({ type:'event', data:e, idx:i })
-    // If flight arriving this day, inject arrival node
-    if (e.type === 'flight' && e.arrivalDayId === day.id && allDays) {
-      all.push({ type:'event', data:{ ...e, _isArrival:true, time: e.arrivalTime||'' }, idx:i, _arrival:true })
-    }
   })
-  // Also check if any flight from another day arrives here
+  // Check if any flight from another day arrives here — inject arrival node
   if (allDays) {
     allDays.forEach(otherDay => {
       if (otherDay.id === day.id) return
@@ -272,7 +268,26 @@ function buildMergedItemsStatic(day, allDays) {
     const ta = a.data.time||''; const tb = b.data.time||''
     if(!ta&&!tb) return 0; if(!ta) return 1; if(!tb) return -1; return ta.localeCompare(tb)
   })
-  return all.map((item,i) => ({ ...item, listIdx:i }))
+
+  // If day has transition label (City A → City B), inject a separator in the middle
+  const items = all.map((item,i) => ({ ...item, listIdx:i }))
+  if (day.cityLabel && day.cityLabel.includes('→')) {
+    const parts = day.cityLabel.split('→')
+    const cityA = parts[0].trim()
+    const cityB = parts[1].trim()
+    // Find the best split point: after last flight arrival event, or at midpoint
+    let splitAfter = -1
+    items.forEach((item, i) => {
+      if (item.type === 'event' && item.data._isArrival) splitAfter = i
+    })
+    if (splitAfter === -1) splitAfter = Math.floor(items.length / 2) - 1
+    // Insert separator after splitAfter
+    items.splice(splitAfter + 1, 0, { type:'separator', cityA, cityB, listIdx: splitAfter + 0.5 })
+    // Re-index
+    return items.map((item, i) => ({ ...item, listIdx: i }))
+  }
+
+  return items
 }
 
 export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDelete, onMove, onUpdateDayLabel, onUpdatePlace, onAddEvent, onUpdateEvent, onMoveEvent, onRemoveEvent }) {
@@ -447,24 +462,36 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
               {mergedItems.length===0
                 ? <div className={styles.emptyDay}>Sin actividades aún</div>
                 : <div className={styles.treeList}>
+                    {/* First city pin */}
                     {day.cityLabel && day.cityLabel.includes('→') && (
-                      <>
-                        <div data-place-row data-day-id={day.id} data-idx={0}
-                          style={{height:'8px',margin:'0 0 0 26px'}} />
-                        <div className={`${styles.cityTransition} ${dropTarget?.dayId===day.id&&dropTarget?.idx===0?styles.cityTransitionDrop:''}`}>
-                          <div className={styles.cityTransitionLine} />
-                          <div className={styles.cityTransitionBadge}>📍 {day.cityLabel.split('→')[0].trim()}</div>
-                          <div className={styles.cityTransitionLine} />
-                        </div>
-                      </>
+                      <div className={styles.cityTransition}>
+                        <div className={styles.cityTransitionLine} />
+                        <div className={styles.cityTransitionBadge}>📍 {day.cityLabel.split('→')[0].trim()}</div>
+                        <div className={styles.cityTransitionLine} />
+                      </div>
                     )}
                     {mergedItems.map((item, listIdx) => {
                       const isLast = listIdx === mergedItems.length-1
                       const nextItem = mergedItems[listIdx+1]
-                      const thisTime = toMinutes(item.data.time||'')
+                      const thisTime = toMinutes(item.data?.time||'')
                       const thisDur = item.type==='place' ? parseFloat(item.data.duration||0)*60 : 0
-                      const nextTime = nextItem ? toMinutes(nextItem.data.time||'') : null
-                      const gap = (thisTime!==null && nextTime!==null) ? nextTime-(thisTime+thisDur) : null
+                      const nextTime = nextItem ? toMinutes(nextItem.data?.time||'') : null
+                      const gap = (item.type !== 'separator' && nextItem?.type !== 'separator' && thisTime!==null && nextTime!==null) ? nextTime-(thisTime+thisDur) : null
+
+                      if (item.type === 'separator') {
+                        return (
+                          <div key={`sep-${listIdx}`}>
+                            {/* Invisible drop zone before separator */}
+                            <div data-place-row data-day-id={day.id} data-idx={listIdx}
+                              style={{height:'12px', cursor:'default'}} />
+                            <div className={`${styles.cityTransition} ${dropTarget?.dayId===day.id&&dropTarget?.idx===listIdx?styles.cityTransitionDrop:''}`}>
+                              <div className={styles.cityTransitionLine} />
+                              <div className={styles.cityTransitionBadge}>📍 {item.cityB}</div>
+                              <div className={styles.cityTransitionLine} />
+                            </div>
+                          </div>
+                        )
+                      }
 
                       return (
                         <React.Fragment key={item.type==='place'?item.data.place_id:(item.data._isArrival?`arr-${item.data.id}`:item.data.id)}>
@@ -476,19 +503,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                                 onRemove={onRemovePlace} onPointerDown={onPointerDown}
                                 dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d)}} />
                           }
-                          {/* City transition after flight arrival — droppable */}
-                          {item.type==='event' && item.data._isArrival && item.data.destination && (
-                            <>
-                              <div className={`${styles.cityTransition} ${dropTarget?.dayId===day.id&&dropTarget?.idx===listIdx+1?styles.cityTransitionDrop:''}`}>
-                                <div className={styles.cityTransitionLine} />
-                                <div className={styles.cityTransitionBadge}>📍 {item.data.destination}</div>
-                                <div className={styles.cityTransitionLine} />
-                              </div>
-                              <div data-place-row data-day-id={day.id} data-idx={listIdx+1}
-                                style={{height:'8px',margin:'0 0 0 26px'}} />
-                            </>
-                          )}
-                          {gap!==null && gap>0 && !isLast && <GapCard minutes={gap} />}
+                          {gap!==null && gap>0 && !isLast && nextItem?.type !== 'separator' && <GapCard minutes={gap} />}
                         </React.Fragment>
                       )
                     })}
