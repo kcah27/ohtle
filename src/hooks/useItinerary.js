@@ -78,6 +78,8 @@ export function useItinerary() {
       return { ...itin, days }
     }, setItineraries, activeItinerary, setActiveItinerary)
   }, [itineraries, activeItinerary])
+
+  const addEvent = useCallback((itineraryId, dayId, event) => {
     updateAndSave(itineraries, itineraryId, itin => ({ ...itin, days: itin.days.map(day => day.id!==dayId ? day : {...day, events:[...(day.events||[]), {id:`evt-${Date.now()}`,...event}]}) }), setItineraries, activeItinerary, setActiveItinerary)
   }, [itineraries, activeItinerary])
 
