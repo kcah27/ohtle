@@ -437,6 +437,13 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
               {mergedItems.length===0
                 ? <div className={styles.emptyDay}>Sin actividades aún</div>
                 : <div className={styles.treeList}>
+                    {day.cityLabel && day.cityLabel.includes('→') && (
+                      <div className={styles.cityTransition}>
+                        <div className={styles.cityTransitionLine} />
+                        <div className={styles.cityTransitionBadge}>📍 {day.cityLabel.split('→')[0].trim()}</div>
+                        <div className={styles.cityTransitionLine} />
+                      </div>
+                    )}
                     {mergedItems.map((item, listIdx) => {
                       const isLast = listIdx === mergedItems.length-1
                       const nextItem = mergedItems[listIdx+1]
