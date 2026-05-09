@@ -353,7 +353,6 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
     printWindow.document.close()
   }
 
-  // Move place by place_id, insert before/after target by ID
   const handleMovePlace = useCallback((itineraryId, fromDayId, placeId, toDayId, toListIdx, targetPlaceId, targetEventId) => {
     const fromDay = itinerary.days.find(d => d.id === fromDayId)
     if (!fromDay) return
@@ -373,6 +372,17 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
       const toMerged = buildMergedItemsStatic(toDay, itinerary.days)
       realToIdx = toMerged.slice(0, toListIdx).filter(i => i.type === 'place').length
     }
+
+    console.log('HANDLE MOVE PLACE', {
+      placeId: placeId?.slice(-6),
+      targetPlaceId: targetPlaceId?.slice(-6),
+      targetEventId: targetEventId?.slice(-6),
+      realFromIdx,
+      realToIdx,
+      toListIdx,
+      fromPlaces: fromDay.places.map((p,i) => `${i}:${p.name?.slice(0,8)}`),
+      toPlaces: toDay.places.map((p,i) => `${i}:${p.name?.slice(0,8)}`)
+    })
 
     onMove(itineraryId, fromDayId, realFromIdx, toDayId, realToIdx)
   }, [itinerary, onMove])
