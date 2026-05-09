@@ -91,3 +91,5 @@
 
 /* Flight arrival tag */
 .flightArrival { font-size: 0.68rem; color: var(--green); font-weight: 500; }
+
+.cityTransitionDrop { border: 2px dashed var(--accent); border-radius: 20px; background: rgba(196,131,74,0.08); }

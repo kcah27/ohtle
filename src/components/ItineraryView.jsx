@@ -437,13 +437,17 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
               {mergedItems.length===0
                 ? <div className={styles.emptyDay}>Sin actividades aún</div>
                 : <div className={styles.treeList}>
-                    {day.cityLabel && day.cityLabel.includes('→') && (
-                      <div className={styles.cityTransition}>
-                        <div className={styles.cityTransitionLine} />
-                        <div className={styles.cityTransitionBadge}>📍 {day.cityLabel.split('→')[0].trim()}</div>
-                        <div className={styles.cityTransitionLine} />
-                      </div>
-                    )}
+                    {day.cityLabel && day.cityLabel.includes('→') && (() => {
+                      const isDropOnFirst = dropTarget?.dayId===day.id && dropTarget?.idx===-1
+                      return (
+                        <div className={`${styles.cityTransition} ${isDropOnFirst?styles.cityTransitionDrop:''}`}
+                          data-place-row data-day-id={day.id} data-idx={-1}>
+                          <div className={styles.cityTransitionLine} />
+                          <div className={styles.cityTransitionBadge}>📍 {day.cityLabel.split('→')[0].trim()}</div>
+                          <div className={styles.cityTransitionLine} />
+                        </div>
+                      )
+                    })()}
                     {mergedItems.map((item, listIdx) => {
                       const isLast = listIdx === mergedItems.length-1
                       const nextItem = mergedItems[listIdx+1]
@@ -462,14 +466,19 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                                 onRemove={onRemovePlace} onPointerDown={onPointerDown}
                                 dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d)}} />
                           }
-                          {/* City transition after flight arrival */}
-                          {item.type==='event' && item.data._isArrival && item.data.destination && (
-                            <div className={styles.cityTransition}>
-                              <div className={styles.cityTransitionLine} />
-                              <div className={styles.cityTransitionBadge}>📍 {item.data.destination}</div>
-                              <div className={styles.cityTransitionLine} />
-                            </div>
-                          )}
+                          {/* City transition after flight arrival — droppable */}
+                          {item.type==='event' && item.data._isArrival && item.data.destination && (() => {
+                            const sepIdx = listIdx + 0.5
+                            const isDropOnSep = dropTarget?.dayId===day.id && dropTarget?.idx===listIdx+1
+                            return (
+                              <div className={`${styles.cityTransition} ${isDropOnSep?styles.cityTransitionDrop:''}`}
+                                data-place-row data-day-id={day.id} data-idx={listIdx+1}>
+                                <div className={styles.cityTransitionLine} />
+                                <div className={styles.cityTransitionBadge}>📍 {item.data.destination}</div>
+                                <div className={styles.cityTransitionLine} />
+                              </div>
+                            )
+                          })()}
                           {gap!==null && gap>0 && !isLast && <GapCard minutes={gap} />}
                         </React.Fragment>
                       )
