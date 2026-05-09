@@ -171,3 +171,22 @@
   color: var(--green);
   background: rgba(61,107,79,0.08);
 }
+
+.multiCityToggle { padding: 0.25rem 0; }
+.toggleLabel { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; color: var(--earth); cursor: pointer; }
+.toggleLabel input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+
+.citiesSection { display: flex; flex-direction: column; gap: 0.5rem; background: var(--sand); border-radius: 10px; padding: 0.85rem; }
+.citiesLabel { font-size: 0.75rem; font-weight: 500; color: var(--light-text); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem; }
+
+.cityRow { display: flex; align-items: center; gap: 0.5rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.65rem; }
+.cityInput { flex: 1; border: none; background: transparent; font-size: 0.9rem; color: var(--dark); outline: none; font-family: 'DM Sans', sans-serif; }
+.cityInput::placeholder { color: var(--light-text); }
+.cityDays { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--dark); white-space: nowrap; }
+.dayBtn { width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--border); background: var(--sand); font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--earth); }
+.dayBtn:hover { border-color: var(--accent); color: var(--accent); }
+.removeCityBtn { background: none; border: none; color: var(--light-text); cursor: pointer; font-size: 0.82rem; padding: 0.15rem; }
+.removeCityBtn:hover { color: #c0392b; }
+.addCityBtn { border: 1.5px dashed var(--border); border-radius: 8px; background: transparent; color: var(--light-text); font-size: 0.82rem; padding: 0.5rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.addCityBtn:hover { border-color: var(--accent); color: var(--accent); }
+.daysWarning { background: rgba(196,131,74,0.1) !important; color: var(--earth) !important; }

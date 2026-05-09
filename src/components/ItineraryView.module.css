@@ -38,8 +38,9 @@
 .placeCard { flex: 1; display: flex; align-items: center; gap: 0.6rem; background: var(--sand); border: 1px solid var(--border); border-radius: 12px; padding: 0.6rem 0.7rem; margin-bottom: 0.65rem; cursor: pointer; transition: all 0.15s; min-width: 0; }
 .placeCard:hover { border-color: rgba(196,131,74,0.4); background: var(--card-bg); transform: translateX(2px); }
 .placeCard.dragOver { border-color: var(--accent); background: rgba(196,131,74,0.05); }
-.dragHandle { font-size: 0.88rem; color: rgba(139,107,74,0.25); flex-shrink: 0; letter-spacing: -2px; touch-action: none; cursor: grab; }
+.dragHandle { font-size: 0.88rem; color: rgba(139,107,74,0.25); flex-shrink: 0; letter-spacing: -2px; touch-action: none; cursor: grab; user-select: none; }
 .placeCard:hover .dragHandle { color: var(--light-text); }
+.eventCard:hover .dragHandle { color: var(--light-text); }
 .placePhoto { width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
 .placeEmoji { width: 42px; height: 42px; border-radius: 8px; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
 .placeInfo { flex: 1; min-width: 0; }
@@ -54,19 +55,15 @@
 .removeBtn { background: none; border: none; color: var(--light-text); cursor: pointer; font-size: 0.8rem; padding: 0.2rem; flex-shrink: 0; }
 .removeBtn:hover { color: #c0392b; }
 
-/* Event card */
-.eventCard { flex: 1; display: flex; align-items: center; gap: 0.6rem; background: var(--sand); border: 1px solid var(--border); border-left: 3px solid; border-radius: 10px; padding: 0.5rem 0.7rem; margin-bottom: 0.65rem; min-width: 0; }
-.eventIcon { font-size: 1.1rem; flex-shrink: 0; }
-.eventInfo { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-.eventTime { font-size: 0.75rem; font-weight: 600; color: var(--dark); background: var(--card-bg); border: 1px solid var(--border); padding: 0.1rem 0.45rem; border-radius: 20px; white-space: nowrap; }
-.eventTitle { font-size: 0.85rem; font-weight: 500; color: var(--dark); }
-.eventNote { font-size: 0.75rem; color: var(--light-text); }
-
-@media (max-width: 600px) {
-  .container { padding: 1.25rem 0.75rem 3rem; }
-  .heroCard { flex-direction: column; text-align: center; }
-  .heroMeta { justify-content: center; }
-}
+/* Event card — title large, note small below, hora arriba en acento */
+.eventCard { flex: 1; display: flex; align-items: flex-start; gap: 0.6rem; background: var(--sand); border: 1px solid var(--border); border-left: 3px solid; border-radius: 10px; padding: 0.6rem 0.7rem; margin-bottom: 0.65rem; min-width: 0; cursor: pointer; transition: all 0.15s; }
+.eventCard:hover { background: var(--card-bg); }
+.eventCard.dragOver { border-top: 2px solid var(--accent); }
+.eventIcon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+.eventInfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.2rem; }
+.eventTime { font-size: 0.7rem; font-weight: 600; color: var(--accent); letter-spacing: 0.03em; }
+.eventTitle { font-size: 0.9rem; font-weight: 500; color: var(--dark); line-height: 1.3; }
+.eventNote { font-size: 0.75rem; color: var(--light-text); line-height: 1.4; }
 
 /* Gap card */
 .gapCard { display: flex; align-items: center; gap: 0.5rem; padding: 0 0 0.65rem 26px; }
@@ -78,12 +75,8 @@
 .summaryItem { display: flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; color: var(--light-text); }
 .summaryIcon { font-size: 0.85rem; }
 
-/* Event card fix — title and note stacked */
-.eventCard { flex: 1; display: flex; align-items: flex-start; gap: 0.6rem; background: var(--sand); border: 1px solid var(--border); border-left: 3px solid; border-radius: 10px; padding: 0.6rem 0.7rem; margin-bottom: 0.65rem; min-width: 0; cursor: pointer; transition: all 0.15s; }
-.eventCard:hover { background: var(--card-bg); }
-.eventCard.dragOver { border-color: var(--accent); }
-.eventIcon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
-.eventInfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.2rem; }
-.eventTime { font-size: 0.72rem; font-weight: 600; color: var(--accent); }
-.eventTitle { font-size: 0.88rem; font-weight: 500; color: var(--dark); }
-.eventNote { font-size: 0.75rem; color: var(--light-text); line-height: 1.4; }
+@media (max-width: 600px) {
+  .container { padding: 1.25rem 0.75rem 3rem; }
+  .heroCard { flex-direction: column; text-align: center; }
+  .heroMeta { justify-content: center; }
+}

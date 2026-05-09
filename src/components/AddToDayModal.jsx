@@ -8,7 +8,7 @@ function formatDateShort(d) { return new Date(d+'T12:00:00').toLocaleDateString(
 
 export default function AddToDayModal({ place, itineraries, activeItinerary, onAdd, onClose }) {
   const [selectedItinerary, setSelectedItinerary] = useState(
-    itineraries.length === 1 ? itineraries[0] : activeItinerary
+    itineraries.length === 1 ? itineraries[0] : null
   )
   const showItineraryPicker = itineraries.length > 1 && !selectedItinerary
 

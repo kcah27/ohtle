@@ -139,11 +139,11 @@ function useDragDrop(onMovePlace, onMoveEvent, itineraryId) {
   return { onPointerDown, dropTarget }
 }
 
-function EventRow({ event, idx, dayId, itineraryId, onRemove, onEdit, onPointerDown, dropTarget, isLast }) {
+function EventRow({ event, listIdx, dayId, itineraryId, onRemove, onEdit, onPointerDown, dropTarget, isLast }) {
   const rowRef = useRef(null)
-  const isDropTarget = dropTarget?.dayId===dayId && dropTarget?.idx===idx
+  const isDropTarget = dropTarget?.dayId===dayId && dropTarget?.idx===listIdx
   return (
-    <div className={styles.treeItem} data-place-row data-day-id={dayId} data-idx={idx} ref={rowRef}>
+    <div className={styles.treeItem} data-place-row data-day-id={dayId} data-idx={listIdx} ref={rowRef}>
       <div className={styles.treeLine}>
         <div className={styles.treeNodeEvent} style={{ borderColor: event.color||'#8B6B4A' }} />
         {!isLast && <div className={styles.treeConnector} />}
@@ -152,7 +152,7 @@ function EventRow({ event, idx, dayId, itineraryId, onRemove, onEdit, onPointerD
         style={{ borderLeftColor: event.color||'#8B6B4A' }}
         onClick={() => onEdit(event)}>
         <div className={styles.dragHandle} data-handle
-          onPointerDown={e=>{e.stopPropagation();onPointerDown(e,dayId,idx,rowRef.current,true)}}>⠿</div>
+          onPointerDown={e=>{e.stopPropagation();onPointerDown(e,dayId,listIdx,rowRef.current,true)}}>⠿</div>
         <span className={styles.eventIcon}>{event.icon}</span>
         <div className={styles.eventInfo}>
           {event.time && <span className={styles.eventTime}>🕐 {event.time}</span>}
@@ -165,22 +165,22 @@ function EventRow({ event, idx, dayId, itineraryId, onRemove, onEdit, onPointerD
   )
 }
 
-function PlaceTreeItem({ place, idx, dayId, itineraryId, onRemove, onPointerDown, dropTarget, isLast, onOpenDetail }) {
+function PlaceTreeItem({ place, listIdx, dayId, itineraryId, onRemove, onPointerDown, dropTarget, isLast, onOpenDetail }) {
   const rowRef = useRef(null)
   const photoUrl = getPhotoUrl(place)
   const cat = CATEGORY_CONFIG[place.category]||CATEGORY_CONFIG.attraction
   const emoji = photoUrl ? null : (place.category==='attraction'?getEmoji(place.types):cat.icon)
-  const isDropTarget = dropTarget?.dayId===dayId && dropTarget?.idx===idx
+  const isDropTarget = dropTarget?.dayId===dayId && dropTarget?.idx===listIdx
 
   return (
-    <div className={styles.treeItem} data-place-row data-day-id={dayId} data-idx={idx} ref={rowRef}>
+    <div className={styles.treeItem} data-place-row data-day-id={dayId} data-idx={listIdx} ref={rowRef}>
       <div className={styles.treeLine}>
         <div className={styles.treeNode} style={{ background: cat.color }} />
         {!isLast && <div className={styles.treeConnector} />}
       </div>
       <div className={`${styles.placeCard} ${isDropTarget?styles.dragOver:''}`} onClick={()=>onOpenDetail(place,dayId)}>
         <div className={styles.dragHandle} data-handle
-          onPointerDown={e=>{e.stopPropagation();onPointerDown(e,dayId,idx,rowRef.current,false)}}>⠿</div>
+          onPointerDown={e=>{e.stopPropagation();onPointerDown(e,dayId,listIdx,rowRef.current,false)}}>⠿</div>
         {photoUrl
           ? <img className={styles.placePhoto} src={photoUrl} alt={place.name} onError={e=>e.target.style.display='none'} />
           : <div className={styles.placeEmoji}>{emoji}</div>
@@ -223,7 +223,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
   const [editingEvent, setEditingEvent] = useState(null)
   const [editingEventDayId, setEditingEventDayId] = useState(null)
 
-  // Move event atomically using merged list index → find real event id
+  // Move event using merged list index
   const handleMoveEvent = useCallback((itineraryId, fromDayId, fromListIdx, toDayId, toListIdx) => {
     const fromDay = itinerary.days.find(d => d.id === fromDayId)
     if (!fromDay) return
@@ -233,7 +233,27 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
     onMoveEvent(itineraryId, fromDayId, item.data.id, toDayId, toListIdx)
   }, [itinerary, onMoveEvent])
 
-  const { onPointerDown, dropTarget } = useDragDrop(onMove, handleMoveEvent, itinerary.id)
+  // Move place using merged list index  
+  const handleMovePlace = useCallback((itineraryId, fromDayId, fromListIdx, toDayId, toListIdx) => {
+    const fromDay = itinerary.days.find(d => d.id === fromDayId)
+    if (!fromDay) return
+    const merged = buildMergedItemsStatic(fromDay)
+    const item = merged[fromListIdx]
+    if (!item || item.type !== 'place') return
+    // Find real place index
+    const realFromIdx = item.idx
+    // Find real to index in target day
+    const toDay = itinerary.days.find(d => d.id === toDayId)
+    let realToIdx = toListIdx
+    if (toDay && toListIdx !== 9999) {
+      const toMerged = buildMergedItemsStatic(toDay)
+      const toItem = toMerged[toListIdx]
+      realToIdx = toItem?.type === 'place' ? toItem.idx : toDay.places.length
+    }
+    onMove(itineraryId, fromDayId, realFromIdx, toDayId, realToIdx === 9999 ? 9999 : realToIdx)
+  }, [itinerary, onMove])
+
+  const { onPointerDown, dropTarget } = useDragDrop(handleMovePlace, handleMoveEvent, itinerary.id)
 
   const totalPlaces = itinerary.days.reduce((acc,d) => acc + d.places.length + (d.events||[]).length, 0)
 
@@ -300,20 +320,18 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                     {mergedItems.map((item, listIdx) => {
                       const isLast = listIdx === mergedItems.length-1
                       const nextItem = mergedItems[listIdx+1]
-
-                      // Calculate gap to next item
-                      const thisTime = toMinutes(item.type==='place'?item.data.time:item.data.time)
+                      const thisTime = toMinutes(item.data.time||'')
                       const thisDur = item.type==='place' ? parseFloat(item.data.duration||0)*60 : 0
-                      const nextTime = nextItem ? toMinutes(nextItem.type==='place'?nextItem.data.time:nextItem.data.time) : null
+                      const nextTime = nextItem ? toMinutes(nextItem.data.time||'') : null
                       const gap = (thisTime!==null && nextTime!==null) ? nextTime-(thisTime+thisDur) : null
 
                       return (
                         <React.Fragment key={item.type==='place'?item.data.place_id:item.data.id}>
                           {item.type==='event'
-                            ? <EventRow event={item.data} idx={item.listIdx} dayId={day.id} itineraryId={itinerary.id}
+                            ? <EventRow event={item.data} listIdx={listIdx} dayId={day.id} itineraryId={itinerary.id}
                                 onRemove={onRemoveEvent} onEdit={e=>handleEditEvent(e,day.id)}
                                 onPointerDown={onPointerDown} dropTarget={dropTarget} isLast={isLast} />
-                            : <PlaceTreeItem place={item.data} idx={item.idx} dayId={day.id} itineraryId={itinerary.id}
+                            : <PlaceTreeItem place={item.data} listIdx={listIdx} dayId={day.id} itineraryId={itinerary.id}
                                 onRemove={onRemovePlace} onPointerDown={onPointerDown}
                                 dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d)}} />
                           }

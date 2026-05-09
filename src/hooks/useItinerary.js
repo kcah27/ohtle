@@ -18,12 +18,22 @@ export function useItinerary() {
   const [itineraries, setItineraries] = useState(loadItineraries)
   const [activeItinerary, setActiveItinerary] = useState(null)
 
-  const createItinerary = useCallback(({ name, destination, startDate, endDate }) => {
+  const createItinerary = useCallback(({ name, destination, startDate, endDate, cities }) => {
     const start = new Date(startDate); const end = new Date(endDate)
     const dayCount = Math.round((end - start) / 86400000) + 1
+    let dayOffset = 0
     const days = Array.from({ length: dayCount }, (_, i) => {
       const date = new Date(start); date.setDate(start.getDate() + i)
-      return { id: `day-${Date.now()}-${i}`, dayNumber: i+1, date: date.toISOString().split('T')[0], places:[], events:[], cityLabel:'' }
+      // Assign cityLabel if cities provided
+      let cityLabel = ''
+      if (cities && cities.length > 0) {
+        let acc = 0
+        for (const city of cities) {
+          if (i < acc + city.days) { cityLabel = city.name; break }
+          acc += city.days
+        }
+      }
+      return { id: `day-${Date.now()}-${i}`, dayNumber: i+1, date: date.toISOString().split('T')[0], places:[], events:[], cityLabel }
     })
     const newItin = { id: Date.now().toString(), name, destination, startDate, endDate, days, createdAt: new Date().toISOString() }
     const updated = [...itineraries, newItin]; setItineraries(updated); saveItineraries(updated); setActiveItinerary(newItin)
