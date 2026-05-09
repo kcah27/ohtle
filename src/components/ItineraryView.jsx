@@ -51,10 +51,7 @@ function GapCard({ minutes }) {
 
 // Day summary footer
 function DaySummary({ items }) {
-  const timed = items.filter(i => {
-    const t = i.type==='place' ? i.data.time : i.data.time
-    return !!t
-  })
+  const timed = items.filter(i => i.type !== 'separator' && !!(i.type==='place' ? i.data.time : i.data.time))
   if (timed.length < 2) return null
 
   let totalOccupied = 0
@@ -473,9 +470,9 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                     {mergedItems.map((item, listIdx) => {
                       const isLast = listIdx === mergedItems.length-1
                       const nextItem = mergedItems[listIdx+1]
-                      const thisTime = toMinutes(item.data?.time||'')
+                      const thisTime = item.type==='separator' ? null : toMinutes(item.data?.time||'')
                       const thisDur = item.type==='place' ? parseFloat(item.data.duration||0)*60 : 0
-                      const nextTime = nextItem ? toMinutes(nextItem.data?.time||'') : null
+                      const nextTime = nextItem && nextItem.type!=='separator' ? toMinutes(nextItem.data?.time||'') : null
                       const gap = (item.type !== 'separator' && nextItem?.type !== 'separator' && thisTime!==null && nextTime!==null) ? nextTime-(thisTime+thisDur) : null
 
                       if (item.type === 'separator') {
@@ -494,7 +491,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                       }
 
                       return (
-                        <React.Fragment key={item.type==='place'?item.data.place_id:(item.data._isArrival?`arr-${item.data.id}`:item.data.id)}>
+                        <React.Fragment key={item.type==='separator'?`sep-${listIdx}`:item.type==='place'?item.data.place_id:(item.data._isArrival?`arr-${item.data.id}`:item.data.id)}>
                           {item.type==='event'
                             ? <EventRow event={item.data} listIdx={listIdx} dayId={day.id} itineraryId={itinerary.id}
                                 onRemove={onRemoveEvent} onEdit={e=>handleEditEvent(e,day.id)}
