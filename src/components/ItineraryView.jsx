@@ -116,8 +116,11 @@ function useDragDrop(onMovePlace, onMoveEvent, itineraryId) {
       if(!cx||!cy) return
       clone.style.left=(cx-20)+'px'; clone.style.top=(cy-20)+'px'
       clone.style.display='none'; const under=document.elementFromPoint(cx,cy); clone.style.display=''
-      const rowEl=under?.closest('[data-place-row]'); const dayEl=under?.closest('[data-day-zone]')
+      const rowEl=under?.closest('[data-place-row]')
+      const cityEl=under?.closest('[data-city-drop]')
+      const dayEl=under?.closest('[data-day-zone]')
       if(rowEl) setDropTarget({ dayId:rowEl.dataset.dayId, idx:parseInt(rowEl.dataset.idx) })
+      else if(cityEl) setDropTarget({ dayId:cityEl.dataset.dayId, idx: parseInt(cityEl.dataset.cityAfter||'-1')+1, _cityDrop:true })
       else if(dayEl) setDropTarget({ dayId:dayEl.dataset.dayZone, idx:9999 })
       else setDropTarget(null)
     }
@@ -438,10 +441,10 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                 ? <div className={styles.emptyDay}>Sin actividades aún</div>
                 : <div className={styles.treeList}>
                     {day.cityLabel && day.cityLabel.includes('→') && (() => {
-                      const isDropOnFirst = dropTarget?.dayId===day.id && dropTarget?.idx===-1
+                      const isDropOnFirst = dropTarget?.dayId===day.id && dropTarget?._cityFirst
                       return (
                         <div className={`${styles.cityTransition} ${isDropOnFirst?styles.cityTransitionDrop:''}`}
-                          data-place-row data-day-id={day.id} data-idx={-1}>
+                          data-city-drop data-day-id={day.id} data-city-pos="first">
                           <div className={styles.cityTransitionLine} />
                           <div className={styles.cityTransitionBadge}>📍 {day.cityLabel.split('→')[0].trim()}</div>
                           <div className={styles.cityTransitionLine} />
@@ -468,11 +471,10 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                           }
                           {/* City transition after flight arrival — droppable */}
                           {item.type==='event' && item.data._isArrival && item.data.destination && (() => {
-                            const sepIdx = listIdx + 0.5
-                            const isDropOnSep = dropTarget?.dayId===day.id && dropTarget?.idx===listIdx+1
+                            const isDropOnSep = dropTarget?.dayId===day.id && dropTarget?._cityArrival===item.data.id
                             return (
                               <div className={`${styles.cityTransition} ${isDropOnSep?styles.cityTransitionDrop:''}`}
-                                data-place-row data-day-id={day.id} data-idx={listIdx+1}>
+                                data-city-drop data-day-id={day.id} data-city-pos="arrival" data-city-after={listIdx}>
                                 <div className={styles.cityTransitionLine} />
                                 <div className={styles.cityTransitionBadge}>📍 {item.data.destination}</div>
                                 <div className={styles.cityTransitionLine} />
