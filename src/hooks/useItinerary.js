@@ -73,9 +73,8 @@ export function useItinerary() {
         const p = [...day.places]
         ;[moved] = p.splice(fromIdx, 1)
         if (fromDayId === toDayId) {
-          // Adjust toIdx if same day and moving forward (element removed shifts indices)
-          const adjustedIdx = toIdx === 9999 ? p.length : (fromIdx < toIdx ? toIdx - 1 : toIdx)
-          p.splice(adjustedIdx, 0, moved)
+          const insertAt = toIdx === 9999 ? p.length : toIdx
+          p.splice(insertAt, 0, moved)
           return { ...day, places: p }
         }
         return { ...day, places: p }

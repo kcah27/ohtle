@@ -367,11 +367,16 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
     if (toListIdx === 9999) {
       realToIdx = 9999
     } else if (targetPlaceId) {
-      // Insert before the target place
       const targetIdx = toDay.places.findIndex(p => p.place_id === targetPlaceId)
-      realToIdx = targetIdx === -1 ? toDay.places.length : targetIdx
+      if (targetIdx === -1) {
+        realToIdx = toDay.places.length
+      } else if (fromDayId === toDayId && realFromIdx < targetIdx) {
+        // Moving forward same day: after splice, target shifts left by 1
+        realToIdx = targetIdx - 1
+      } else {
+        realToIdx = targetIdx
+      }
     } else {
-      // Drop on event or separator — insert at end of places before that point
       const toMerged = buildMergedItemsStatic(toDay, itinerary.days)
       realToIdx = toMerged.slice(0, toListIdx).filter(i => i.type === 'place').length
     }
