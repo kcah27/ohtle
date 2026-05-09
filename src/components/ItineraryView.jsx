@@ -156,6 +156,8 @@ function EventRow({ event, listIdx, dayId, itineraryId, onRemove, onEdit, onPoin
 
   return (
     <div className={styles.treeItem} data-place-row data-day-id={dayId} data-idx={listIdx} data-event-id={event.id} ref={rowRef}>
+      <div className={styles.treeLine}>
+        <div className={styles.treeNodeEvent} style={{ borderColor: event.color||'#8B6B4A' }} />
         {!isLast && <div className={styles.treeConnector} />}
       </div>
       <div className={`${styles.eventCard} ${isDropTarget?styles.dragOver:''}`}
