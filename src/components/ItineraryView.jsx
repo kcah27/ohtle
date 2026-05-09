@@ -122,19 +122,8 @@ function useDragDrop(onMovePlace, onMoveEvent, itineraryId) {
       if(!cx||!cy) return
       clone.style.left=(cx-20)+'px'; clone.style.top=(cy-20)+'px'
       clone.style.display='none'; const under=document.elementFromPoint(cx,cy); clone.style.display=''
-      const rowEl=under?.closest('[data-place-row]')
-      const sepEl=under?.closest('[data-city-sep]')
-      const dayEl=under?.closest('[data-day-zone]')
+      const rowEl=under?.closest('[data-place-row]'); const dayEl=under?.closest('[data-day-zone]')
       if(rowEl) updateDropTarget({ dayId:rowEl.dataset.dayId, idx:parseInt(rowEl.dataset.idx) })
-      else if(sepEl) {
-        const sep = sepEl.dataset.citySep
-        const dayId = sepEl.dataset.dayId
-        if(sep==='first') updateDropTarget({ dayId, idx:0 })
-        else {
-          const afterIdx = parseInt(sep.replace('after-',''))
-          updateDropTarget({ dayId, idx: afterIdx+1 })
-        }
-      }
       else if(dayEl) updateDropTarget({ dayId:dayEl.dataset.dayZone, idx:9999 })
       else updateDropTarget(null)
     }
@@ -459,12 +448,15 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                 ? <div className={styles.emptyDay}>Sin actividades aún</div>
                 : <div className={styles.treeList}>
                     {day.cityLabel && day.cityLabel.includes('→') && (
-                      <div className={`${styles.cityTransition} ${dropTarget?.dayId===day.id&&dropTarget?.idx===0?styles.cityTransitionDrop:''}`}
-                        data-city-sep="first" data-day-id={day.id}>
-                        <div className={styles.cityTransitionLine} />
-                        <div className={styles.cityTransitionBadge}>📍 {day.cityLabel.split('→')[0].trim()}</div>
-                        <div className={styles.cityTransitionLine} />
-                      </div>
+                      <>
+                        <div data-place-row data-day-id={day.id} data-idx={0}
+                          style={{height:'8px',margin:'0 0 0 26px'}} />
+                        <div className={`${styles.cityTransition} ${dropTarget?.dayId===day.id&&dropTarget?.idx===0?styles.cityTransitionDrop:''}`}>
+                          <div className={styles.cityTransitionLine} />
+                          <div className={styles.cityTransitionBadge}>📍 {day.cityLabel.split('→')[0].trim()}</div>
+                          <div className={styles.cityTransitionLine} />
+                        </div>
+                      </>
                     )}
                     {mergedItems.map((item, listIdx) => {
                       const isLast = listIdx === mergedItems.length-1
@@ -486,12 +478,15 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                           }
                           {/* City transition after flight arrival — droppable */}
                           {item.type==='event' && item.data._isArrival && item.data.destination && (
-                            <div className={`${styles.cityTransition} ${dropTarget?.dayId===day.id&&dropTarget?.idx===listIdx+1?styles.cityTransitionDrop:''}`}
-                              data-city-sep={`after-${listIdx}`} data-day-id={day.id}>
-                              <div className={styles.cityTransitionLine} />
-                              <div className={styles.cityTransitionBadge}>📍 {item.data.destination}</div>
-                              <div className={styles.cityTransitionLine} />
-                            </div>
+                            <>
+                              <div className={`${styles.cityTransition} ${dropTarget?.dayId===day.id&&dropTarget?.idx===listIdx+1?styles.cityTransitionDrop:''}`}>
+                                <div className={styles.cityTransitionLine} />
+                                <div className={styles.cityTransitionBadge}>📍 {item.data.destination}</div>
+                                <div className={styles.cityTransitionLine} />
+                              </div>
+                              <div data-place-row data-day-id={day.id} data-idx={listIdx+1}
+                                style={{height:'8px',margin:'0 0 0 26px'}} />
+                            </>
                           )}
                           {gap!==null && gap>0 && !isLast && <GapCard minutes={gap} />}
                         </React.Fragment>
