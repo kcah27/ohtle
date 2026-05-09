@@ -101,6 +101,12 @@ let globalDrag = null
 function useDragDrop(onMovePlace, onMoveEvent, itineraryId) {
   const dragClone = useRef(null)
   const [dropTarget, setDropTarget] = useState(null)
+  const dropTargetRef = useRef(null)
+
+  const updateDropTarget = (val) => {
+    dropTargetRef.current = val
+    setDropTarget(val)
+  }
 
   const onPointerDown = useCallback((e, dayId, idx, el, isEvent) => {
     if (!e.target.closest('[data-handle]')) return
@@ -119,29 +125,29 @@ function useDragDrop(onMovePlace, onMoveEvent, itineraryId) {
       const rowEl=under?.closest('[data-place-row]')
       const sepEl=under?.closest('[data-city-sep]')
       const dayEl=under?.closest('[data-day-zone]')
-      if(rowEl) setDropTarget({ dayId:rowEl.dataset.dayId, idx:parseInt(rowEl.dataset.idx) })
+      if(rowEl) updateDropTarget({ dayId:rowEl.dataset.dayId, idx:parseInt(rowEl.dataset.idx) })
       else if(sepEl) {
         const sep = sepEl.dataset.citySep
         const dayId = sepEl.dataset.dayId
-        if(sep==='first') setDropTarget({ dayId, idx:0 })
+        if(sep==='first') updateDropTarget({ dayId, idx:0 })
         else {
           const afterIdx = parseInt(sep.replace('after-',''))
-          setDropTarget({ dayId, idx: afterIdx+1 })
+          updateDropTarget({ dayId, idx: afterIdx+1 })
         }
       }
-      else if(dayEl) setDropTarget({ dayId:dayEl.dataset.dayZone, idx:9999 })
-      else setDropTarget(null)
+      else if(dayEl) updateDropTarget({ dayId:dayEl.dataset.dayZone, idx:9999 })
+      else updateDropTarget(null)
     }
 
     const up = () => {
       if(dragClone.current){document.body.removeChild(dragClone.current);dragClone.current=null}
-      setDropTarget(prev => {
-        if(globalDrag&&prev){
-          const{dayId:fD,idx:fI,isEvent:fE}=globalDrag; const{dayId:tD,idx:tI}=prev
-          if(fD!==tD||fI!==tI){ fE ? onMoveEvent(itineraryId,fD,fI,tD,tI) : onMovePlace(itineraryId,fD,fI,tD,tI) }
-        }
-        globalDrag=null; return null
-      })
+      const prev = dropTargetRef.current
+      if(globalDrag && prev){
+        const{dayId:fD,idx:fI,isEvent:fE}=globalDrag; const{dayId:tD,idx:tI}=prev
+        if(fD!==tD||fI!==tI){ fE ? onMoveEvent(itineraryId,fD,fI,tD,tI) : onMovePlace(itineraryId,fD,fI,tD,tI) }
+      }
+      globalDrag=null
+      updateDropTarget(null)
       document.removeEventListener('pointermove',move); document.removeEventListener('pointerup',up)
     }
     document.addEventListener('pointermove',move,{passive:false}); document.addEventListener('pointerup',up)
@@ -374,7 +380,6 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
     } else {
       // Find how many places come before this list index in the merged list
       const toMerged = buildMergedItemsStatic(toDay, itinerary.days)
-      console.log('DROP DEBUG', { fromDayId, fromListIdx, toDayId, toListIdx, toMerged: toMerged.map(i=>({type:i.type,name:i.data.name||i.data.title,listIdx:i.listIdx})) })
       const placesBeforeIdx = toMerged.slice(0, toListIdx).filter(i => i.type === 'place').length
       realToIdx = placesBeforeIdx
     }
