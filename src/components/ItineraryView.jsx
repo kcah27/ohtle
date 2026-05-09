@@ -368,14 +368,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
       realToIdx = 9999
     } else if (targetPlaceId) {
       const targetIdx = toDay.places.findIndex(p => p.place_id === targetPlaceId)
-      if (targetIdx === -1) {
-        realToIdx = toDay.places.length
-      } else if (fromDayId === toDayId && realFromIdx < targetIdx) {
-        // Moving forward same day: after splice, target shifts left by 1
-        realToIdx = targetIdx - 1
-      } else {
-        realToIdx = targetIdx
-      }
+      realToIdx = targetIdx === -1 ? toDay.places.length : targetIdx
     } else {
       const toMerged = buildMergedItemsStatic(toDay, itinerary.days)
       realToIdx = toMerged.slice(0, toListIdx).filter(i => i.type === 'place').length
