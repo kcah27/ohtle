@@ -94,11 +94,6 @@ export function useItinerary() {
       saveItineraries(updated)
       return updated
     })
-    setActiveItinerary(prev => {
-      if (!prev || prev.id !== itineraryId) return prev
-      const fresh = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-      return fresh.find(i => i.id === itineraryId) || prev
-    })
   }, [])
 
   const moveEvent = useCallback((itineraryId, fromDayId, fromEventId, toDayId, toIdx) => {
