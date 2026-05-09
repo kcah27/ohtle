@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styles from './SearchBar.module.css'
 
 const FILTERS = [
@@ -14,6 +14,8 @@ export default function SearchBar({ onSearch, loading, initialQuery }) {
   const [query, setQuery] = useState(initialQuery || '')
   const [selectedTypes, setSelectedTypes] = useState(['tourist_attraction'])
   const [geoLoading, setGeoLoading] = useState(false)
+
+  useEffect(() => { if (initialQuery) setQuery(initialQuery) }, [initialQuery])
 
   const toggleType = (type) => {
     setSelectedTypes(prev =>

@@ -1,5 +1,5 @@
 .container { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-.topBar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; position: sticky; top: 0; z-index: 50; background: var(--sand); padding: 0.75rem 0; gap: 0.5rem; }
+.topBar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; position: sticky; top: 0; z-index: 90; background: var(--sand); padding: 0.75rem 0; gap: 0.5rem; border-bottom: 1px solid var(--border); }
 .backBtn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; font-size: 0.88rem; color: var(--earth); cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; padding: 0.4rem 1rem; transition: all 0.15s; white-space: nowrap; }
 .backBtn:hover { border-color: var(--accent); color: var(--accent); }
 .topBarRight { display: flex; align-items: center; gap: 0.4rem; }

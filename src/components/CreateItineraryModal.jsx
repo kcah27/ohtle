@@ -3,33 +3,53 @@ import styles from './CreateItineraryModal.module.css'
 
 const today = new Date().toISOString().split('T')[0]
 
-function CityRow({ city, onChange, onRemove, canRemove, isLast }) {
+function formatShort(dateStr) {
+  if (!dateStr) return ''
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString('es-MX', { month: 'short', day: 'numeric' })
+}
+
+function daysBetween(a, b) {
+  if (!a || !b) return 0
+  return Math.round((new Date(b) - new Date(a)) / 86400000) + 1
+}
+
+function CityRow({ city, onChange, onRemove, canRemove, tripStart, tripEnd }) {
   return (
     <div className={styles.cityBlock}>
       <div className={styles.cityRow}>
-        <input className={styles.cityInput} placeholder="ej. Tokio" value={city.name}
-          onChange={e => onChange({ ...city, name: e.target.value })} />
-        <div className={styles.cityDays}>
-          <button className={styles.dayBtn} onClick={() => onChange({ ...city, days: Math.max(1, city.days-1) })}>−</button>
-          <span>{city.days}d</span>
-          <button className={styles.dayBtn} onClick={() => onChange({ ...city, days: city.days+1 })}>+</button>
-        </div>
+        <input className={styles.cityInput} placeholder="ej. CDMX, Santiago..."
+          value={city.name} onChange={e => onChange({ ...city, name: e.target.value })} />
         {canRemove && <button className={styles.removeCityBtn} onClick={onRemove}>✕</button>}
       </div>
-      {!isLast && (
-        <label className={styles.sharedLabel}>
-          <input type="checkbox" checked={!!city.shared}
-            onChange={e => onChange({ ...city, shared: e.target.checked })} />
-          <span>Compartido con siguiente ciudad</span>
-        </label>
-      )}
+      <div className={styles.cityDates}>
+        <div className={styles.cityDateField}>
+          <label>Llegada</label>
+          <input type="date" className={styles.cityDateInput}
+            min={tripStart} max={tripEnd}
+            value={city.startDate}
+            onChange={e => onChange({ ...city, startDate: e.target.value })} />
+        </div>
+        <div className={styles.cityDateArrow}>→</div>
+        <div className={styles.cityDateField}>
+          <label>Salida</label>
+          <input type="date" className={styles.cityDateInput}
+            min={city.startDate || tripStart} max={tripEnd}
+            value={city.endDate}
+            onChange={e => onChange({ ...city, endDate: e.target.value })} />
+        </div>
+        {city.startDate && city.endDate && (
+          <div className={styles.cityDaysCount}>
+            {daysBetween(city.startDate, city.endDate)}d
+          </div>
+        )}
+      </div>
     </div>
   )
 }
 
 export default function CreateItineraryModal({ onClose, onCreate, onAuto }) {
   const [form, setForm] = useState({ name: '', destination: '', startDate: '', endDate: '' })
-  const [cities, setCities] = useState([{ id: 1, name: '', days: 3 }])
+  const [cities, setCities] = useState([{ id: 1, name: '', startDate: '', endDate: '' }])
   const [multiCity, setMultiCity] = useState(false)
   const [error, setError] = useState('')
 
@@ -40,11 +60,6 @@ export default function CreateItineraryModal({ onClose, onCreate, onAuto }) {
     return Math.round((new Date(form.endDate) - new Date(form.startDate)) / 86400000) + 1
   }
 
-  // Shared days reduce total: if city A (3d) is shared with B, last day of A = first day of B
-  const totalCityDays = cities.reduce((a, c, i) => {
-    const next = cities[i+1]
-    return a + c.days - (c.shared && next ? 1 : 0)
-  }, 0)
   const days = getDayCount()
 
   const handleSubmit = () => {
@@ -56,7 +71,7 @@ export default function CreateItineraryModal({ onClose, onCreate, onAuto }) {
     if (days > 21) return setError('Máximo 21 días por itinerario')
     if (multiCity) {
       if (cities.some(c => !c.name.trim())) return setError('Ponle nombre a todas las ciudades')
-      if (totalCityDays !== days) return setError(`Los días de las ciudades (${totalCityDays}) deben sumar ${days} días`)
+      if (cities.some(c => !c.startDate || !c.endDate)) return setError('Agrega fechas de llegada y salida a todas las ciudades')
     }
     onCreate({ ...form, cities: multiCity ? cities : null })
   }
@@ -95,33 +110,30 @@ export default function CreateItineraryModal({ onClose, onCreate, onAuto }) {
           </div>
           {days > 0 && <div className={styles.daysBadge}>📅 {days} {days === 1 ? 'día' : 'días'} de viaje</div>}
 
-          {/* Multi-city toggle */}
           {days > 0 && (
             <div className={styles.multiCityToggle}>
               <label className={styles.toggleLabel}>
                 <input type="checkbox" checked={multiCity} onChange={e => setMultiCity(e.target.checked)} />
-                <span>¿Visitas varias ciudades?</span>
+                <span>¿En qué ciudades estarás y cuándo?</span>
               </label>
             </div>
           )}
 
-          {/* City breakdown */}
           {multiCity && days > 0 && (
             <div className={styles.citiesSection}>
-              <div className={styles.citiesLabel}>Ciudades y días en cada una</div>
+              <div className={styles.citiesLabel}>Escalas del viaje</div>
               {cities.map((city, idx) => (
                 <CityRow key={city.id} city={city}
                   onChange={updated => setCities(cs => cs.map(c => c.id === city.id ? updated : c))}
                   onRemove={() => setCities(cs => cs.filter(c => c.id !== city.id))}
                   canRemove={cities.length > 1}
-                  isLast={idx === cities.length - 1} />
+                  tripStart={form.startDate}
+                  tripEnd={form.endDate} />
               ))}
-              <button className={styles.addCityBtn} onClick={() => setCities(cs => [...cs, { id: Date.now(), name: '', days: 1 }])}>
-                + Agregar ciudad
+              <button className={styles.addCityBtn}
+                onClick={() => setCities(cs => [...cs, { id: Date.now(), name: '', startDate: '', endDate: '' }])}>
+                + Agregar escala
               </button>
-              <div className={`${styles.daysBadge} ${totalCityDays !== days ? styles.daysWarning : ''}`}>
-                {totalCityDays} de {days} días asignados
-              </div>
             </div>
           )}
 

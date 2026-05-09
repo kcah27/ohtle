@@ -194,3 +194,11 @@
 .cityBlock { display: flex; flex-direction: column; gap: 4px; }
 .sharedLabel { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--light-text); cursor: pointer; padding: 2px 0 2px 4px; }
 .sharedLabel input { accent-color: var(--accent); cursor: pointer; }
+
+.cityDates { display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 0.4rem; align-items: center; margin-top: 4px; }
+.cityDateField { display: flex; flex-direction: column; gap: 2px; }
+.cityDateField label { font-size: 0.68rem; color: var(--light-text); text-transform: uppercase; letter-spacing: 0.06em; }
+.cityDateInput { padding: 0.4rem 0.5rem; border: 1px solid var(--border); border-radius: 7px; background: var(--card-bg); font-size: 0.78rem; color: var(--dark); outline: none; font-family: 'DM Sans', sans-serif; width: 100%; }
+.cityDateInput:focus { border-color: var(--accent); }
+.cityDateArrow { color: var(--light-text); font-size: 1rem; padding-top: 14px; }
+.cityDaysCount { font-size: 0.75rem; font-weight: 500; color: var(--accent); background: rgba(196,131,74,0.1); padding: 0.2rem 0.5rem; border-radius: 20px; white-space: nowrap; align-self: flex-end; margin-bottom: 2px; }

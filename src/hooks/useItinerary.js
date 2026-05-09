@@ -24,19 +24,19 @@ export function useItinerary() {
     const dayCount = Math.round((end - start) / 86400000) + 1
     const days = Array.from({ length: dayCount }, (_, i) => {
       const date = new Date(start); date.setDate(start.getDate() + i)
+      const dateStr = date.toISOString().split('T')[0]
       let cityLabel = ''
       if (cities && cities.length > 0) {
-        let acc = 0
-        for (let ci = 0; ci < cities.length; ci++) {
-          const city = cities[ci]
-          const next = cities[ci + 1]
-          const isSharedDay = city.shared && next && i === acc + city.days - 1
-          if (isSharedDay) { cityLabel = `${city.name} → ${next.name}`; break }
-          if (i < acc + city.days) { cityLabel = city.name; break }
-          acc += city.days - (city.shared && next ? 1 : 0)
+        // Find all cities active on this date
+        const activeCities = cities.filter(c => c.startDate && c.endDate && dateStr >= c.startDate && dateStr <= c.endDate)
+        if (activeCities.length >= 2) {
+          // Transition day — show "City A → City B"
+          cityLabel = activeCities.map(c => c.name).join(' → ')
+        } else if (activeCities.length === 1) {
+          cityLabel = activeCities[0].name
         }
       }
-      return { id: `day-${Date.now()}-${i}`, dayNumber: i+1, date: date.toISOString().split('T')[0], places:[], events:[], cityLabel }
+      return { id: `day-${Date.now()}-${i}`, dayNumber: i+1, date: dateStr, places:[], events:[], cityLabel }
     })
     const newItin = { id: Date.now().toString(), name, destination, startDate, endDate, days, status: 'progress', createdAt: new Date().toISOString() }
     const updated = [...itineraries, newItin]; setItineraries(updated); saveItineraries(updated); setActiveItinerary(newItin)
