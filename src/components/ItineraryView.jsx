@@ -374,6 +374,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
     } else {
       // Find how many places come before this list index in the merged list
       const toMerged = buildMergedItemsStatic(toDay, itinerary.days)
+      console.log('DROP DEBUG', { fromDayId, fromListIdx, toDayId, toListIdx, toMerged: toMerged.map(i=>({type:i.type,name:i.data.name||i.data.title,listIdx:i.listIdx})) })
       const placesBeforeIdx = toMerged.slice(0, toListIdx).filter(i => i.type === 'place').length
       realToIdx = placesBeforeIdx
     }
