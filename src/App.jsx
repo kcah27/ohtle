@@ -14,7 +14,7 @@ import styles from './App.module.css'
 
 export default function App() {
   const { loading, error, places, search, getPhotoUrl } = usePlaces()
-  const { itineraries, activeItinerary, setActiveItinerary, createItinerary, addPlaceToDay, removePlaceFromDay, updatePlace, movePlace, addEvent, removeEvent, updateDayLabel, deleteItinerary } = useItinerary()
+  const { itineraries, activeItinerary, setActiveItinerary, createItinerary, addPlaceToDay, removePlaceFromDay, updatePlace, movePlace, addEvent, updateEvent, removeEvent, updateDayLabel, deleteItinerary } = useItinerary()
   const { generate, generating } = useAutoItinerary()
 
   const [searched, setSearched] = useState(false)
@@ -72,6 +72,7 @@ export default function App() {
           onUpdateDayLabel={updateDayLabel}
           onUpdatePlace={updatePlace}
           onAddEvent={addEvent}
+          onUpdateEvent={updateEvent}
           onRemoveEvent={removeEvent}
         />
         {showList && <ItineraryList itineraries={itineraries} onSelect={handleSelectItinerary} onNew={() => { setShowList(false); setShowCreateModal(true) }} onClose={() => setShowList(false)} />}

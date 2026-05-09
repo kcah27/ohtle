@@ -67,3 +67,23 @@
   .heroCard { flex-direction: column; text-align: center; }
   .heroMeta { justify-content: center; }
 }
+
+/* Gap card */
+.gapCard { display: flex; align-items: center; gap: 0.5rem; padding: 0 0 0.65rem 26px; }
+.gapLine { flex: 1; height: 1px; background: var(--border); }
+.gapBadge { font-size: 0.7rem; color: var(--light-text); background: var(--sand); border: 1px solid var(--border); padding: 0.15rem 0.6rem; border-radius: 20px; white-space: nowrap; }
+
+/* Day summary */
+.daySummary { display: flex; gap: 1rem; flex-wrap: wrap; padding: 0.65rem 1rem; border-top: 1px solid var(--border); margin: 0.25rem -1rem -0.5rem; background: var(--sand); border-radius: 0 0 14px 14px; }
+.summaryItem { display: flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; color: var(--light-text); }
+.summaryIcon { font-size: 0.85rem; }
+
+/* Event card fix — title and note stacked */
+.eventCard { flex: 1; display: flex; align-items: flex-start; gap: 0.6rem; background: var(--sand); border: 1px solid var(--border); border-left: 3px solid; border-radius: 10px; padding: 0.6rem 0.7rem; margin-bottom: 0.65rem; min-width: 0; cursor: pointer; transition: all 0.15s; }
+.eventCard:hover { background: var(--card-bg); }
+.eventCard.dragOver { border-color: var(--accent); }
+.eventIcon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+.eventInfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.2rem; }
+.eventTime { font-size: 0.72rem; font-weight: 600; color: var(--accent); }
+.eventTitle { font-size: 0.88rem; font-weight: 500; color: var(--dark); }
+.eventNote { font-size: 0.75rem; color: var(--light-text); line-height: 1.4; }

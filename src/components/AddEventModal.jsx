@@ -2,26 +2,28 @@ import React, { useState } from 'react'
 import styles from './AddEventModal.module.css'
 
 const EVENT_TYPES = [
-  { id: 'flight', label: 'Vuelo', icon: '✈️', color: '#3D6B4F' },
-  { id: 'transfer', label: 'Transfer/Taxi', icon: '🚕', color: '#8B6B4A' },
-  { id: 'checkin', label: 'Check-in Hotel', icon: '🏨', color: '#C4834A' },
-  { id: 'checkout', label: 'Check-out Hotel', icon: '🧳', color: '#C4834A' },
-  { id: 'reminder', label: 'Recordatorio', icon: '📌', color: '#1A1208' },
+  { id: 'flight',   label: 'Vuelo',           icon: '✈️', color: '#3D6B4F' },
+  { id: 'transfer', label: 'Transfer/Taxi',    icon: '🚕', color: '#8B6B4A' },
+  { id: 'checkin',  label: 'Check-in Hotel',   icon: '🏨', color: '#C4834A' },
+  { id: 'checkout', label: 'Check-out Hotel',  icon: '🧳', color: '#C4834A' },
+  { id: 'reminder', label: 'Recordatorio',     icon: '📌', color: '#1A1208' },
 ]
 
-export default function AddEventModal({ dayId, itineraryId, onAdd, onClose }) {
-  const [type, setType] = useState('')
-  const [title, setTitle] = useState('')
-  const [time, setTime] = useState('')
-  const [note, setNote] = useState('')
+export default function AddEventModal({ dayId, itineraryId, onAdd, onClose, editingEvent }) {
+  const [type, setType]   = useState(editingEvent?.type || '')
+  const [title, setTitle] = useState(editingEvent?.title || '')
+  const [time, setTime]   = useState(editingEvent?.time || '')
+  const [note, setNote]   = useState(editingEvent?.note || '')
   const [error, setError] = useState('')
 
   const selectedType = EVENT_TYPES.find(t => t.id === type)
+  const isEditing = !!editingEvent
 
-  const handleAdd = () => {
+  const handleSave = () => {
     if (!type) return setError('Selecciona el tipo de evento')
     if (!title.trim()) return setError('Agrega una descripción')
-    onAdd(itineraryId, dayId, { type, title: title.trim(), time, note, icon: selectedType.icon, color: selectedType.color })
+    const data = { type, title: title.trim(), time, note: note.trim(), icon: selectedType.icon, color: selectedType.color }
+    onAdd(itineraryId, dayId, data)
     onClose()
   }
 
@@ -29,16 +31,17 @@ export default function AddEventModal({ dayId, itineraryId, onAdd, onClose }) {
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <div className={styles.header}>
-          <h3 className={styles.title}>Agregar evento</h3>
+          <h3 className={styles.title}>{isEditing ? 'Editar evento' : 'Agregar evento'}</h3>
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
 
         <div className={styles.body}>
           <div className={styles.typeGrid}>
             {EVENT_TYPES.map(t => (
-              <button key={t.id} className={`${styles.typeBtn} ${type === t.id ? styles.typeSelected : ''}`}
-                style={type === t.id ? { borderColor: t.color, background: t.color + '15' } : {}}
-                onClick={() => { setType(t.id); setTitle(t.label) }}>
+              <button key={t.id}
+                className={`${styles.typeBtn} ${type === t.id ? styles.typeSelected : ''}`}
+                style={type === t.id ? { borderColor: t.color, background: t.color+'15' } : {}}
+                onClick={() => { setType(t.id); if (!isEditing) setTitle(t.label) }}>
                 <span>{t.icon}</span>
                 <span className={styles.typeLabel}>{t.label}</span>
               </button>
@@ -67,7 +70,9 @@ export default function AddEventModal({ dayId, itineraryId, onAdd, onClose }) {
 
         <div className={styles.footer}>
           <button className={styles.cancelBtn} onClick={onClose}>Cancelar</button>
-          <button className={styles.addBtn} onClick={handleAdd}>+ Agregar</button>
+          <button className={styles.addBtn} onClick={handleSave}>
+            {isEditing ? 'Guardar cambios' : '+ Agregar'}
+          </button>
         </div>
       </div>
     </div>
