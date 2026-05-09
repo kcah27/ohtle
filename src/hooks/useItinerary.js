@@ -57,7 +57,27 @@ export function useItinerary() {
     }, setItineraries, activeItinerary, setActiveItinerary)
   }, [itineraries, activeItinerary])
 
-  const addEvent = useCallback((itineraryId, dayId, event) => {
+  const moveEvent = useCallback((itineraryId, fromDayId, fromEventId, toDayId, toIdx) => {
+    updateAndSave(itineraries, itineraryId, itin => {
+      let movedEvent = null
+      const days = itin.days.map(day => {
+        if (day.id !== fromDayId) return day
+        const events = [...(day.events||[])]
+        const idx = events.findIndex(e => e.id === fromEventId)
+        if (idx === -1) return day
+        ;[movedEvent] = events.splice(idx, 1)
+        return { ...day, events }
+      }).map(day => {
+        if (day.id !== toDayId || !movedEvent) return day
+        const events = [...(day.events||[])]
+        if (!events.some(e => e.id === movedEvent.id)) {
+          events.splice(toIdx === 9999 ? events.length : toIdx, 0, movedEvent)
+        }
+        return { ...day, events }
+      })
+      return { ...itin, days }
+    }, setItineraries, activeItinerary, setActiveItinerary)
+  }, [itineraries, activeItinerary])
     updateAndSave(itineraries, itineraryId, itin => ({ ...itin, days: itin.days.map(day => day.id!==dayId ? day : {...day, events:[...(day.events||[]), {id:`evt-${Date.now()}`,...event}]}) }), setItineraries, activeItinerary, setActiveItinerary)
   }, [itineraries, activeItinerary])
 
@@ -78,5 +98,5 @@ export function useItinerary() {
     if(activeItinerary?.id===itineraryId) setActiveItinerary(null)
   }, [itineraries, activeItinerary])
 
-  return { itineraries, activeItinerary, setActiveItinerary, createItinerary, addPlaceToDay, removePlaceFromDay, updatePlace, movePlace, addEvent, updateEvent, removeEvent, updateDayLabel, deleteItinerary }
+  return { itineraries, activeItinerary, setActiveItinerary, createItinerary, addPlaceToDay, removePlaceFromDay, updatePlace, movePlace, addEvent, updateEvent, moveEvent, removeEvent, updateDayLabel, deleteItinerary }
 }

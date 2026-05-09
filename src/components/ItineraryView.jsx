@@ -203,43 +203,41 @@ function PlaceTreeItem({ place, idx, dayId, itineraryId, onRemove, onPointerDown
   )
 }
 
-export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDelete, onMove, onUpdateDayLabel, onUpdatePlace, onAddEvent, onUpdateEvent, onRemoveEvent }) {
+// Standalone version for use outside component render
+function buildMergedItemsStatic(day) {
+  const events = day.events || []
+  const all = []
+  day.places.forEach((p,i) => all.push({ type:'place', data:p, idx:i }))
+  events.forEach((e,i) => all.push({ type:'event', data:e, idx:i }))
+  all.sort((a,b) => {
+    const ta = a.data.time||''; const tb = b.data.time||''
+    if(!ta&&!tb) return 0; if(!ta) return 1; if(!tb) return -1; return ta.localeCompare(tb)
+  })
+  return all.map((item,i) => ({ ...item, listIdx:i }))
+}
+
+export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDelete, onMove, onUpdateDayLabel, onUpdatePlace, onAddEvent, onUpdateEvent, onMoveEvent, onRemoveEvent }) {
   const [detailPlace, setDetailPlace] = useState(null)
   const [detailDayId, setDetailDayId] = useState(null)
   const [addingEventDayId, setAddingEventDayId] = useState(null)
   const [editingEvent, setEditingEvent] = useState(null)
   const [editingEventDayId, setEditingEventDayId] = useState(null)
 
-  // Move event within/across days
-  const handleMoveEvent = useCallback((itineraryId, fromDayId, fromIdx, toDayId, toIdx) => {
-    // Find the event and move it
-    const itin = itinerary
-    const fromDay = itin.days.find(d => d.id === fromDayId)
+  // Move event atomically using merged list index → find real event id
+  const handleMoveEvent = useCallback((itineraryId, fromDayId, fromListIdx, toDayId, toListIdx) => {
+    const fromDay = itinerary.days.find(d => d.id === fromDayId)
     if (!fromDay) return
-    // Rebuild merged list to find real event idx
-    const fromMerged = buildMergedItems(fromDay)
-    const item = fromMerged[fromIdx]
+    const merged = buildMergedItemsStatic(fromDay)
+    const item = merged[fromListIdx]
     if (!item || item.type !== 'event') return
-    onRemoveEvent(itineraryId, fromDayId, item.data.id)
-    onAddEvent(itineraryId, toDayId, { ...item.data, id: undefined })
-  }, [itinerary, onRemoveEvent, onAddEvent])
+    onMoveEvent(itineraryId, fromDayId, item.data.id, toDayId, toListIdx)
+  }, [itinerary, onMoveEvent])
 
   const { onPointerDown, dropTarget } = useDragDrop(onMove, handleMoveEvent, itinerary.id)
 
   const totalPlaces = itinerary.days.reduce((acc,d) => acc + d.places.length + (d.events||[]).length, 0)
 
-  function buildMergedItems(day) {
-    const events = day.events || []
-    const all = []
-    day.places.forEach((p,i) => all.push({ type:'place', data:p, idx:i }))
-    events.forEach((e,i) => all.push({ type:'event', data:e, idx:i }))
-    all.sort((a,b) => {
-      const ta = a.type==='place'?a.data.time:a.data.time
-      const tb = b.type==='place'?b.data.time:b.data.time
-      if(!ta&&!tb) return 0; if(!ta) return 1; if(!tb) return -1; return ta.localeCompare(tb)
-    })
-    return all.map((item,i) => ({ ...item, listIdx:i }))
-  }
+  function buildMergedItems(day) { return buildMergedItemsStatic(day) }
 
   const sections = []
   let currentCity = null
