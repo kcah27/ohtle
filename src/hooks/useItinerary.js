@@ -112,6 +112,10 @@ export function useItinerary() {
     updateAndSave(itineraries, itineraryId, itin => ({ ...itin, days: itin.days.map(day => day.id!==dayId ? day : {...day,cityLabel}) }), setItineraries, activeItinerary, setActiveItinerary)
   }, [itineraries, activeItinerary])
 
+  const updateSeparatorIdx = useCallback((itineraryId, dayId, separatorIdx) => {
+    updateAndSave(itineraries, itineraryId, itin => ({ ...itin, days: itin.days.map(day => day.id!==dayId ? day : {...day,separatorIdx}) }), setItineraries, activeItinerary, setActiveItinerary)
+  }, [itineraries, activeItinerary])
+
   const updateStatus = useCallback((itineraryId, status) => {
     const updated = itineraries.map(i => i.id !== itineraryId ? i : { ...i, status })
     setItineraries(updated); saveItineraries(updated)
@@ -123,5 +127,5 @@ export function useItinerary() {
     if(activeItinerary?.id===itineraryId) setActiveItinerary(null)
   }, [itineraries, activeItinerary])
 
-  return { itineraries, activeItinerary, setActiveItinerary, createItinerary, addPlaceToDay, removePlaceFromDay, updatePlace, movePlace, addEvent, updateEvent, moveEvent, removeEvent, updateDayLabel, updateStatus, deleteItinerary }
+  return { itineraries, activeItinerary, setActiveItinerary, createItinerary, addPlaceToDay, removePlaceFromDay, updatePlace, movePlace, addEvent, updateEvent, moveEvent, removeEvent, updateDayLabel, updateSeparatorIdx, updateStatus, deleteItinerary }
 }

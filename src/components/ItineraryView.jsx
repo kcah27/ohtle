@@ -266,28 +266,22 @@ function buildMergedItemsStatic(day, allDays) {
     if(!ta&&!tb) return 0; if(!ta) return 1; if(!tb) return -1; return ta.localeCompare(tb)
   })
 
-  // If day has transition label (City A → City B), inject a separator in the middle
+  // If day has transition label, inject separator at saved position or default midpoint
   const items = all.map((item,i) => ({ ...item, listIdx:i }))
   if (day.cityLabel && day.cityLabel.includes('→')) {
     const parts = day.cityLabel.split('→')
     const cityA = parts[0].trim()
     const cityB = parts[1].trim()
-    // Find the best split point: after last flight arrival event, or at midpoint
-    let splitAfter = -1
-    items.forEach((item, i) => {
-      if (item.type === 'event' && item.data._isArrival) splitAfter = i
-    })
-    if (splitAfter === -1) splitAfter = Math.floor(items.length / 2) - 1
-    // Insert separator after splitAfter
+    // Use saved separatorIdx if exists, otherwise default to after first half
+    let splitAfter = day.separatorIdx !== undefined ? day.separatorIdx : Math.ceil(items.length / 2) - 1
+    splitAfter = Math.max(-1, Math.min(splitAfter, items.length - 1))
     items.splice(splitAfter + 1, 0, { type:'separator', cityA, cityB, listIdx: splitAfter + 0.5 })
-    // Re-index
     return items.map((item, i) => ({ ...item, listIdx: i }))
   }
-
   return items
 }
 
-export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDelete, onMove, onUpdateDayLabel, onUpdatePlace, onAddEvent, onUpdateEvent, onMoveEvent, onRemoveEvent }) {
+export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDelete, onMove, onUpdateDayLabel, onUpdatePlace, onAddEvent, onUpdateEvent, onMoveEvent, onRemoveEvent, onUpdateSeparatorIdx }) {
   const [detailPlace, setDetailPlace] = useState(null)
   const [detailDayId, setDetailDayId] = useState(null)
   const [addingEventDayId, setAddingEventDayId] = useState(null)
@@ -357,13 +351,13 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
   const handleMoveEvent = useCallback((itineraryId, fromDayId, fromListIdx, toDayId, toListIdx) => {
     const fromDay = itinerary.days.find(d => d.id === fromDayId)
     if (!fromDay) return
-    const merged = buildMergedItemsStatic(fromDay)
+    const merged = buildMergedItemsStatic(fromDay, itinerary.days)
     const item = merged[fromListIdx]
     if (!item || item.type !== 'event') return
     onMoveEvent(itineraryId, fromDayId, item.data.id, toDayId, toListIdx)
   }, [itinerary, onMoveEvent])
 
-  // Move place using merged list index  
+  // Move place using merged list index
   const handleMovePlace = useCallback((itineraryId, fromDayId, fromListIdx, toDayId, toListIdx) => {
     const fromDay = itinerary.days.find(d => d.id === fromDayId)
     if (!fromDay) return
@@ -375,17 +369,25 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
     const toDay = itinerary.days.find(d => d.id === toDayId)
     if (!toDay) return
 
-    let realToIdx
-    if (toListIdx === 9999) {
-      realToIdx = 9999
-    } else {
-      // Find how many places come before this list index in the merged list
-      const toMerged = buildMergedItemsStatic(toDay, itinerary.days)
-      const placesBeforeIdx = toMerged.slice(0, toListIdx).filter(i => i.type === 'place').length
-      realToIdx = placesBeforeIdx
-    }
+    // Count places before toListIdx, skipping separator
+    const toMerged = buildMergedItemsStatic(toDay, itinerary.days)
+    const placesBeforeIdx = toMerged.slice(0, toListIdx).filter(i => i.type === 'place').length
+    const realToIdx = toListIdx === 9999 ? 9999 : placesBeforeIdx
+
     onMove(itineraryId, fromDayId, realFromIdx, toDayId, realToIdx)
-  }, [itinerary, onMove])
+
+    // Update separatorIdx if element crossed the separator in same day
+    if (fromDayId === toDayId && fromDay.cityLabel?.includes('→')) {
+      const sepItem = merged.find(i => i.type === 'separator')
+      if (sepItem) {
+        const sepListIdx = sepItem.listIdx
+        let newSepIdx = fromDay.separatorIdx !== undefined ? fromDay.separatorIdx : Math.ceil(merged.length / 2) - 1
+        if (fromListIdx < sepListIdx && toListIdx > sepListIdx) newSepIdx = Math.max(0, newSepIdx - 1)
+        else if (fromListIdx > sepListIdx && toListIdx <= sepListIdx) newSepIdx = newSepIdx + 1
+        onUpdateSeparatorIdx(itineraryId, fromDayId, newSepIdx)
+      }
+    }
+  }, [itinerary, onMove, onUpdateSeparatorIdx])
 
   const { onPointerDown, dropTarget } = useDragDrop(handleMovePlace, handleMoveEvent, itinerary.id)
 
