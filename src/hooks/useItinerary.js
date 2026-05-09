@@ -66,6 +66,7 @@ export function useItinerary() {
   }, [itineraries, activeItinerary])
 
   const movePlace = useCallback((itineraryId, fromDayId, fromIdx, toDayId, toIdx) => {
+    console.log('MOVE', { fromDayId: fromDayId.slice(-4), toDayId: toDayId.slice(-4), fromIdx, toIdx, same: fromDayId===toDayId })
     updateAndSave(itineraries, itineraryId, itin => {
       let moved = null
       const days = itin.days.map(day => {
