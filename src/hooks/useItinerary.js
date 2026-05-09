@@ -74,10 +74,12 @@ export function useItinerary() {
         const days = itin.days.map(day => {
           if (day.id !== fromDayId) return day
           const p = [...day.places]
+          const beforeNames = p.map(x=>x.name?.slice(0,8))
           ;[moved] = p.splice(fromIdx, 1)
           if (fromDayId === toDayId) {
             const insertAt = toIdx === 9999 ? p.length : toIdx
             p.splice(insertAt, 0, moved)
+            console.log('SPLICE RESULT', { before: beforeNames, after: p.map(x=>x.name?.slice(0,8)), fromIdx, insertAt })
             return { ...day, places: p }
           }
           return { ...day, places: p }
