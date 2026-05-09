@@ -67,29 +67,39 @@ export function useItinerary() {
 
   const movePlace = useCallback((itineraryId, fromDayId, fromIdx, toDayId, toIdx) => {
     console.log('MOVE', { fromDayId: fromDayId.slice(-4), toDayId: toDayId.slice(-4), fromIdx, toIdx, same: fromDayId===toDayId })
-    updateAndSave(itineraries, itineraryId, itin => {
-      let moved = null
-      const days = itin.days.map(day => {
-        if (day.id !== fromDayId) return day
-        const p = [...day.places]
-        ;[moved] = p.splice(fromIdx, 1)
-        if (fromDayId === toDayId) {
-          const insertAt = toIdx === 9999 ? p.length : toIdx
-          p.splice(insertAt, 0, moved)
+    setItineraries(current => {
+      const updated = current.map(itin => {
+        if (itin.id !== itineraryId) return itin
+        let moved = null
+        const days = itin.days.map(day => {
+          if (day.id !== fromDayId) return day
+          const p = [...day.places]
+          ;[moved] = p.splice(fromIdx, 1)
+          if (fromDayId === toDayId) {
+            const insertAt = toIdx === 9999 ? p.length : toIdx
+            p.splice(insertAt, 0, moved)
+            return { ...day, places: p }
+          }
           return { ...day, places: p }
-        }
-        return { ...day, places: p }
-      }).map(day => {
-        if (day.id !== toDayId || fromDayId === toDayId) return day
-        const p = [...day.places]
-        if (!p.some(x => x.place_id === moved.place_id)) {
-          p.splice(toIdx === 9999 ? p.length : toIdx, 0, moved)
-        }
-        return { ...day, places: p }
+        }).map(day => {
+          if (day.id !== toDayId || fromDayId === toDayId) return day
+          const p = [...day.places]
+          if (!p.some(x => x.place_id === moved?.place_id)) {
+            p.splice(toIdx === 9999 ? p.length : toIdx, 0, moved)
+          }
+          return { ...day, places: p }
+        })
+        return { ...itin, days }
       })
-      return { ...itin, days }
-    }, setItineraries, activeItinerary, setActiveItinerary)
-  }, [itineraries, activeItinerary])
+      saveItineraries(updated)
+      return updated
+    })
+    setActiveItinerary(prev => {
+      if (!prev || prev.id !== itineraryId) return prev
+      const fresh = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+      return fresh.find(i => i.id === itineraryId) || prev
+    })
+  }, [])
 
   const moveEvent = useCallback((itineraryId, fromDayId, fromEventId, toDayId, toIdx) => {
     updateAndSave(itineraries, itineraryId, itin => {
