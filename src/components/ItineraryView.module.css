@@ -1,83 +1,66 @@
 .container { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-
 .topBar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
 .backBtn { background: none; border: none; font-size: 0.9rem; color: var(--earth); cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; }
 .backBtn:hover { color: var(--accent); }
 .deleteBtn { background: none; border: 1px solid var(--border); border-radius: 8px; font-size: 0.82rem; color: var(--light-text); cursor: pointer; font-family: 'DM Sans', sans-serif; padding: 0.4rem 0.85rem; }
 .deleteBtn:hover { border-color: #c0392b; color: #c0392b; }
-
 .heroCard { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem; }
 .heroEmoji { font-size: 2.5rem; }
 .heroTitle { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--dark); margin-bottom: 0.5rem; }
 .heroMeta { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--light-text); }
-
-/* City section header */
-.cityHeader {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.4rem; font-weight: 600; color: var(--dark);
-  padding: 0.75rem 0 0.25rem;
-  border-bottom: 2px solid var(--accent);
-  margin-bottom: 0.5rem; letter-spacing: -0.01em;
-}
-
+.cityHeader { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 600; color: var(--dark); padding: 0.75rem 0 0.25rem; border-bottom: 2px solid var(--accent); margin-bottom: 0.5rem; }
 .days { display: flex; flex-direction: column; gap: 1.25rem; }
-
 .daySection { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
-.dayDropZone { border-color: var(--accent); background: rgba(196,131,74,0.03); }
-
-.dayHeader { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border); background: var(--sand); gap: 0.75rem; flex-wrap: wrap; }
-.dayHeaderLeft { display: flex; align-items: center; gap: 0.75rem; }
-.dayHeaderRight { display: flex; align-items: center; gap: 0.5rem; }
-.dayNum { font-size: 0.7rem; font-weight: 600; color: var(--accent); letter-spacing: 0.1em; }
-.dayDate { font-size: 0.9rem; color: var(--dark); font-weight: 500; text-transform: capitalize; }
-.dayCount { font-size: 0.72rem; color: var(--light-text); background: var(--card-bg); border: 1px solid var(--border); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 500; }
-
-/* City label editable */
-.cityLabelPill { font-size: 0.75rem; font-weight: 500; color: var(--green); background: rgba(61,107,79,0.1); padding: 0.2rem 0.65rem; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 0.3rem; }
+.dayDropZone { border-color: var(--accent); }
+.dayHeader { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); background: var(--sand); gap: 0.5rem; flex-wrap: wrap; }
+.dayHeaderLeft { display: flex; align-items: center; gap: 0.6rem; }
+.dayHeaderRight { display: flex; align-items: center; gap: 0.4rem; }
+.dayNum { font-size: 0.68rem; font-weight: 600; color: var(--accent); letter-spacing: 0.1em; }
+.dayDate { font-size: 0.88rem; color: var(--dark); font-weight: 500; text-transform: capitalize; }
+.dayCount { font-size: 0.7rem; color: var(--light-text); background: var(--card-bg); border: 1px solid var(--border); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 500; }
+.addEventBtn { font-size: 0.72rem; color: var(--earth); background: none; border: 1px solid var(--border); padding: 0.2rem 0.55rem; border-radius: 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; }
+.addEventBtn:hover { border-color: var(--accent); color: var(--accent); }
+.cityLabelPill { font-size: 0.72rem; font-weight: 500; color: var(--green); background: rgba(61,107,79,0.1); padding: 0.18rem 0.6rem; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; }
 .cityLabelPill:hover { background: rgba(61,107,79,0.18); }
-.editHint { opacity: 0.5; font-size: 0.68rem; }
-.addCityBtn { font-size: 0.72rem; color: var(--light-text); background: none; border: 1px dashed var(--border); padding: 0.2rem 0.6rem; border-radius: 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.editHint { opacity: 0.5; font-size: 0.65rem; }
+.addCityBtn { font-size: 0.7rem; color: var(--light-text); background: none; border: 1px dashed var(--border); padding: 0.18rem 0.55rem; border-radius: 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap; }
 .addCityBtn:hover { border-color: var(--accent); color: var(--accent); }
-.cityInput { font-size: 0.82rem; color: var(--dark); background: var(--card-bg); border: 1px solid var(--accent); padding: 0.2rem 0.6rem; border-radius: 8px; outline: none; font-family: 'DM Sans', sans-serif; width: 110px; }
-
+.cityInput { font-size: 0.82rem; color: var(--dark); background: var(--card-bg); border: 1px solid var(--accent); padding: 0.18rem 0.55rem; border-radius: 8px; outline: none; font-family: 'DM Sans', sans-serif; width: 100px; }
 .emptyDay { padding: 1.5rem; font-size: 0.85rem; color: var(--light-text); font-style: italic; text-align: center; }
-
-/* Tree layout */
-.treeList { padding: 1rem 1rem 0.5rem; display: flex; flex-direction: column; gap: 0; }
-
+.treeList { padding: 1rem 1rem 0.5rem; display: flex; flex-direction: column; }
 .treeItem { display: flex; gap: 0; align-items: flex-start; }
-
-.treeLine { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; padding-top: 14px; }
+.treeLine { display: flex; flex-direction: column; align-items: center; width: 26px; flex-shrink: 0; padding-top: 12px; }
 .treeNode { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; border: 2px solid white; box-shadow: 0 0 0 2px currentColor; }
-.treeConnector { width: 2px; flex: 1; min-height: 24px; background: var(--border); margin: 4px 0; }
+.treeNodeEvent { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; border: 2px solid; background: white; }
+.treeConnector { width: 2px; flex: 1; min-height: 20px; background: var(--border); margin: 3px 0; }
 
-/* Place card in tree */
-.placeCard {
-  flex: 1; display: flex; align-items: center; gap: 0.65rem;
-  background: var(--sand); border: 1px solid var(--border);
-  border-radius: 12px; padding: 0.65rem 0.75rem;
-  margin-bottom: 0.75rem; cursor: grab; transition: all 0.15s;
-  min-width: 0;
-}
-.placeCard:hover { border-color: rgba(196,131,74,0.3); background: var(--card-bg); }
-.placeCard:active { cursor: grabbing; }
-.placeCard.dragOver { border-color: var(--accent); background: rgba(196,131,74,0.06); }
-
-.dragHandle { font-size: 0.9rem; color: rgba(139,107,74,0.3); flex-shrink: 0; letter-spacing: -2px; touch-action: none; cursor: grab; }
+/* Place card */
+.placeCard { flex: 1; display: flex; align-items: center; gap: 0.6rem; background: var(--sand); border: 1px solid var(--border); border-radius: 12px; padding: 0.6rem 0.7rem; margin-bottom: 0.65rem; cursor: pointer; transition: all 0.15s; min-width: 0; }
+.placeCard:hover { border-color: rgba(196,131,74,0.4); background: var(--card-bg); transform: translateX(2px); }
+.placeCard.dragOver { border-color: var(--accent); background: rgba(196,131,74,0.05); }
+.dragHandle { font-size: 0.88rem; color: rgba(139,107,74,0.25); flex-shrink: 0; letter-spacing: -2px; touch-action: none; cursor: grab; }
 .placeCard:hover .dragHandle { color: var(--light-text); }
-
-.placePhoto { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
-.placeEmoji { width: 44px; height: 44px; border-radius: 8px; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
-
+.placePhoto { width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
+.placeEmoji { width: 42px; height: 42px; border-radius: 8px; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
 .placeInfo { flex: 1; min-width: 0; }
-.categoryPill { display: inline-block; font-size: 0.62rem; font-weight: 600; letter-spacing: 0.08em; padding: 0.12rem 0.5rem; border-radius: 20px; margin-bottom: 0.25rem; }
-.placeName { font-size: 0.88rem; font-weight: 500; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.placeMeta { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.15rem; flex-wrap: wrap; }
-.placeRating { font-size: 0.72rem; color: #E8A83A; font-weight: 500; }
-.placeAddr { font-size: 0.7rem; color: var(--light-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
-
-.removeBtn { background: none; border: none; color: var(--light-text); cursor: pointer; font-size: 0.82rem; padding: 0.25rem; flex-shrink: 0; }
+.placeTopRow { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.2rem; }
+.categoryPill { display: inline-block; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.08em; padding: 0.1rem 0.45rem; border-radius: 20px; }
+.timeTag { font-size: 0.68rem; color: var(--light-text); }
+.placeName { font-size: 0.87rem; font-weight: 500; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.placeMeta { display: flex; gap: 0.4rem; align-items: center; margin-top: 0.12rem; flex-wrap: wrap; }
+.placeRating { font-size: 0.7rem; color: #E8A83A; font-weight: 500; }
+.placeAddr { font-size: 0.68rem; color: var(--light-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+.noteIndicator { font-size: 0.68rem; }
+.removeBtn { background: none; border: none; color: var(--light-text); cursor: pointer; font-size: 0.8rem; padding: 0.2rem; flex-shrink: 0; }
 .removeBtn:hover { color: #c0392b; }
+
+/* Event card */
+.eventCard { flex: 1; display: flex; align-items: center; gap: 0.6rem; background: var(--sand); border: 1px solid var(--border); border-left: 3px solid; border-radius: 10px; padding: 0.5rem 0.7rem; margin-bottom: 0.65rem; min-width: 0; }
+.eventIcon { font-size: 1.1rem; flex-shrink: 0; }
+.eventInfo { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.eventTime { font-size: 0.75rem; font-weight: 600; color: var(--dark); background: var(--card-bg); border: 1px solid var(--border); padding: 0.1rem 0.45rem; border-radius: 20px; white-space: nowrap; }
+.eventTitle { font-size: 0.85rem; font-weight: 500; color: var(--dark); }
+.eventNote { font-size: 0.75rem; color: var(--light-text); }
 
 @media (max-width: 600px) {
   .container { padding: 1.25rem 0.75rem 3rem; }

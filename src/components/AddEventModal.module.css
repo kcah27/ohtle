@@ -1,0 +1,20 @@
+.overlay { position: fixed; inset: 0; background: rgba(26,18,8,0.5); display: flex; align-items: center; justify-content: center; z-index: 400; padding: 1rem; }
+.modal { background: var(--card-bg); border-radius: 18px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(26,18,8,0.2); }
+.header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem 0; }
+.title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--dark); }
+.closeBtn { background: none; border: none; font-size: 1rem; color: var(--light-text); cursor: pointer; }
+.body { padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 0.85rem; }
+.typeGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+.typeBtn { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; padding: 0.65rem 0.5rem; border: 1.5px solid var(--border); border-radius: 10px; background: var(--sand); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.typeBtn:hover { border-color: var(--accent); }
+.typeSelected { }
+.typeLabel { font-size: 0.72rem; color: var(--dark); font-weight: 500; text-align: center; }
+.field { display: flex; flex-direction: column; gap: 0.35rem; }
+.field label { font-size: 0.75rem; font-weight: 500; color: var(--light-text); text-transform: uppercase; letter-spacing: 0.06em; }
+.input { padding: 0.65rem 0.9rem; border: 1px solid var(--border); border-radius: 8px; background: var(--sand); font-size: 0.9rem; color: var(--dark); outline: none; font-family: 'DM Sans', sans-serif; width: 100%; }
+.input:focus { border-color: var(--accent); }
+.error { font-size: 0.82rem; color: var(--accent); background: rgba(196,131,74,0.1); padding: 0.5rem 0.75rem; border-radius: 8px; }
+.footer { display: flex; gap: 0.75rem; padding: 0.75rem 1.5rem 1.5rem; justify-content: flex-end; }
+.cancelBtn { padding: 0.65rem 1.25rem; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--earth); font-size: 0.88rem; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.addBtn { padding: 0.65rem 1.5rem; border-radius: 10px; border: none; background: var(--accent); color: white; font-size: 0.88rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.addBtn:hover { background: var(--accent-hover); }

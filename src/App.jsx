@@ -14,8 +14,8 @@ import styles from './App.module.css'
 
 export default function App() {
   const { loading, error, places, search, getPhotoUrl } = usePlaces()
-  const { itineraries, activeItinerary, setActiveItinerary, createItinerary, addPlaceToDay, removePlaceFromDay, movePlace, updateDayLabel, deleteItinerary } = useItinerary()
-  const { generate, generating, error: autoError } = useAutoItinerary()
+  const { itineraries, activeItinerary, setActiveItinerary, createItinerary, addPlaceToDay, removePlaceFromDay, updatePlace, movePlace, addEvent, removeEvent, updateDayLabel, deleteItinerary } = useItinerary()
+  const { generate, generating } = useAutoItinerary()
 
   const [searched, setSearched] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -35,21 +35,25 @@ export default function App() {
   const handleAutoGenerate = async (formData) => {
     const newItin = await generate(formData)
     if (!newItin) return
-    // Save to storage via createItinerary but with pre-built days
-    const STORAGE_KEY = 'ohtle_itineraries'
     try {
-      const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+      const existing = JSON.parse(localStorage.getItem('ohtle_itineraries') || '[]')
       existing.push(newItin)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(existing))
+      localStorage.setItem('ohtle_itineraries', JSON.stringify(existing))
     } catch {}
     setShowAutoWizard(false)
     setActiveItinerary(newItin)
     setViewingItinerary(newItin)
-    window.location.reload() // reload to pick up localStorage
+    window.location.reload()
   }
 
-  const handleAddToItinerary = (place) => { if (!activeItinerary) return; setAddingPlace(place) }
-  const handleDaySelected = (dayId) => { addPlaceToDay(activeItinerary.id, dayId, addingPlace); setAddingPlace(null) }
+  const handleAddToItinerary = (place) => { if (itineraries.length === 0) return; setAddingPlace(place) }
+
+  const handleDaySelected = (itineraryId, dayId, place) => {
+    addPlaceToDay(itineraryId, dayId, place)
+    setAddingPlace(null)
+    const itin = itineraries.find(i => i.id === itineraryId)
+    if (itin) setActiveItinerary(itin)
+  }
 
   const handleSelectItinerary = (itin) => { setActiveItinerary(itin); setShowList(false); setViewingItinerary(itin) }
   const handleDeleteItinerary = (id) => { deleteItinerary(id); setViewingItinerary(null) }
@@ -59,9 +63,19 @@ export default function App() {
     return (
       <>
         <Header itineraryCount={itineraries.length} activeItinerary={activeItinerary} onShowList={() => setShowList(true)} onNewItinerary={() => setShowCreateModal(true)} />
-        <ItineraryView itinerary={current} onBack={() => setViewingItinerary(null)} onRemovePlace={removePlaceFromDay} onDelete={handleDeleteItinerary} onMove={movePlace} onUpdateDayLabel={updateDayLabel} />
+        <ItineraryView
+          itinerary={current}
+          onBack={() => setViewingItinerary(null)}
+          onRemovePlace={removePlaceFromDay}
+          onDelete={handleDeleteItinerary}
+          onMove={movePlace}
+          onUpdateDayLabel={updateDayLabel}
+          onUpdatePlace={updatePlace}
+          onAddEvent={addEvent}
+          onRemoveEvent={removeEvent}
+        />
         {showList && <ItineraryList itineraries={itineraries} onSelect={handleSelectItinerary} onNew={() => { setShowList(false); setShowCreateModal(true) }} onClose={() => setShowList(false)} />}
-        {showCreateModal && <CreateItineraryModal onClose={() => setShowCreateModal(false)} onCreate={handleCreate} onAuto={() => setShowAutoWizard(true)} />}
+        {showCreateModal && <CreateItineraryModal onClose={() => setShowCreateModal(false)} onCreate={handleCreate} onAuto={() => { setShowCreateModal(false); setShowAutoWizard(true) }} />}
         {showAutoWizard && <AutoItineraryWizard onClose={() => setShowAutoWizard(false)} onGenerate={handleAutoGenerate} generating={generating} />}
       </>
     )
@@ -70,7 +84,6 @@ export default function App() {
   return (
     <div>
       <Header itineraryCount={itineraries.length} activeItinerary={activeItinerary} onShowList={() => setShowList(true)} onNewItinerary={() => setShowCreateModal(true)} />
-
       <main className={styles.main}>
         <div className={styles.hero}>
           <h1 className={styles.heroTitle}>Descubre lo <em>auténtico</em><br />donde estás</h1>
@@ -85,19 +98,15 @@ export default function App() {
         )}
 
         <SearchBar onSearch={handleSearch} loading={loading} />
-
         {error && <div className={styles.error}>⚠️ {error}</div>}
-
         {loading && <div className={styles.loader}><span /><span /><span /></div>}
 
         {!loading && searched && places.length === 0 && !error && (
           <div className={styles.empty}><span className={styles.emptyIcon}>🔍</span><p>No se encontraron lugares con esos filtros.</p></div>
         )}
-
         {!loading && !searched && (
           <div className={styles.placeholder}><span className={styles.emptyIcon}>🗺️</span><p>Ingresa una ubicación para descubrir experiencias locales auténticas</p></div>
         )}
-
         {!loading && places.length > 0 && (
           <>
             <div className={styles.resultsHeader}>
@@ -106,7 +115,9 @@ export default function App() {
             </div>
             <div className={styles.grid}>
               {places.map(place => (
-                <PlaceCard key={place.place_id} place={place} getPhotoUrl={getPhotoUrl} activeItinerary={activeItinerary} onAddToItinerary={handleAddToItinerary} />
+                <PlaceCard key={place.place_id} place={place} getPhotoUrl={getPhotoUrl}
+                  activeItinerary={itineraries.length > 0}
+                  onAddToItinerary={handleAddToItinerary} />
               ))}
             </div>
           </>
@@ -116,7 +127,12 @@ export default function App() {
       {showCreateModal && <CreateItineraryModal onClose={() => setShowCreateModal(false)} onCreate={handleCreate} onAuto={() => { setShowCreateModal(false); setShowAutoWizard(true) }} />}
       {showAutoWizard && <AutoItineraryWizard onClose={() => setShowAutoWizard(false)} onGenerate={handleAutoGenerate} generating={generating} />}
       {showList && <ItineraryList itineraries={itineraries} onSelect={handleSelectItinerary} onNew={() => { setShowList(false); setShowCreateModal(true) }} onClose={() => setShowList(false)} />}
-      {addingPlace && activeItinerary && <AddToDayModal place={addingPlace} itinerary={activeItinerary} onAdd={handleDaySelected} onClose={() => setAddingPlace(null)} />}
+      {addingPlace && itineraries.length > 0 && (
+        <AddToDayModal
+          place={addingPlace} itineraries={itineraries} activeItinerary={activeItinerary}
+          onAdd={handleDaySelected} onClose={() => setAddingPlace(null)}
+        />
+      )}
     </div>
   )
 }

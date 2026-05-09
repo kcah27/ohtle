@@ -1,174 +1,30 @@
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(26, 18, 8, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-  padding: 1rem;
-}
-
-.modal {
-  background: var(--card-bg);
-  border-radius: 18px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 20px 60px rgba(26, 18, 8, 0.2);
-  overflow: hidden;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 1.25rem 1.25rem 0;
-  gap: 0.75rem;
-}
-
-.placeInfo {
-  display: flex;
-  gap: 0.75rem;
-  align-items: flex-start;
-  flex: 1;
-}
-
+.overlay { position: fixed; inset: 0; background: rgba(26,18,8,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 1rem; }
+.modal { background: var(--card-bg); border-radius: 18px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(26,18,8,0.2); overflow: hidden; }
+.header { display: flex; justify-content: space-between; align-items: flex-start; padding: 1.25rem 1.25rem 0; gap: 0.75rem; }
+.placeInfo { display: flex; gap: 0.75rem; align-items: flex-start; flex: 1; }
 .emoji { font-size: 1.5rem; flex-shrink: 0; }
-
-.placeName {
-  font-family: 'Playfair Display', serif;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--dark);
-  line-height: 1.3;
-}
-
-.placeAddr {
-  font-size: 0.78rem;
-  color: var(--light-text);
-  margin-top: 0.2rem;
-}
-
-.closeBtn {
-  background: none;
-  border: none;
-  font-size: 1rem;
-  color: var(--light-text);
-  cursor: pointer;
-  flex-shrink: 0;
-  padding: 0.25rem;
-}
-
-.closeBtn:hover { color: var(--dark); }
-
-.subtitle {
-  padding: 1rem 1.25rem 0.5rem;
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: var(--light-text);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.days {
-  padding: 0 0.75rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  max-height: 360px;
-  overflow-y: auto;
-}
-
-.dayBtn {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--sand);
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s;
-  font-family: 'DM Sans', sans-serif;
-  width: 100%;
-}
-
-.dayBtn:hover:not(:disabled) {
-  border-color: var(--accent);
-  background: var(--card-bg);
-}
-
-.dayBtn.added {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.dayTop {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  width: 100%;
-}
-
-.dayNum {
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: var(--accent);
-  white-space: nowrap;
-  min-width: 38px;
-}
-
-.dayDate {
-  font-size: 0.88rem;
-  color: var(--dark);
-  flex: 1;
-  text-transform: capitalize;
-}
-
-.addTag {
-  font-size: 0.75rem;
-  color: var(--accent);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.addedTag {
-  font-size: 0.75rem;
-  color: var(--green);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.dayPlaces {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  padding-left: 2px;
-}
-
-.miniPlace {
-  font-size: 0.72rem;
-  color: var(--light-text);
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  padding: 0.15rem 0.5rem;
-  border-radius: 20px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 130px;
-}
-
-.morePlaces {
-  font-size: 0.72rem;
-  color: var(--light-text);
-  padding: 0.15rem 0.4rem;
-}
-
-.emptyDay {
-  font-size: 0.72rem;
-  color: var(--light-text);
-  font-style: italic;
-  padding-left: 2px;
-}
+.placeName { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--dark); line-height: 1.3; }
+.placeAddr { font-size: 0.78rem; color: var(--light-text); margin-top: 0.2rem; }
+.closeBtn { background: none; border: none; font-size: 1rem; color: var(--light-text); cursor: pointer; flex-shrink: 0; }
+.subtitle { padding: 0.85rem 1.25rem 0.4rem; font-size: 0.78rem; font-weight: 500; color: var(--light-text); text-transform: uppercase; letter-spacing: 0.06em; }
+.backToItin { background: none; border: none; font-size: 0.82rem; color: var(--accent); cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; padding: 0; text-transform: none; letter-spacing: 0; }
+.days { padding: 0 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.4rem; max-height: 380px; overflow-y: auto; }
+.itinBtn { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--sand); cursor: pointer; text-align: left; transition: all 0.15s; font-family: 'DM Sans', sans-serif; width: 100%; }
+.itinBtn:hover { border-color: var(--accent); background: var(--card-bg); }
+.itinEmoji { font-size: 1.4rem; }
+.itinInfo { flex: 1; }
+.itinName { font-size: 0.92rem; font-weight: 500; color: var(--dark); }
+.itinMeta { font-size: 0.75rem; color: var(--light-text); }
+.arrow { color: var(--light-text); }
+.dayBtn { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.7rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--sand); cursor: pointer; text-align: left; transition: all 0.15s; font-family: 'DM Sans', sans-serif; width: 100%; }
+.dayBtn:hover:not(:disabled) { border-color: var(--accent); background: var(--card-bg); }
+.dayBtn.added { opacity: 0.6; cursor: not-allowed; }
+.dayTop { display: flex; align-items: center; gap: 0.6rem; width: 100%; }
+.dayNum { font-size: 0.75rem; font-weight: 500; color: var(--accent); white-space: nowrap; min-width: 38px; }
+.dayDate { font-size: 0.85rem; color: var(--dark); flex: 1; text-transform: capitalize; }
+.addTag { font-size: 0.72rem; color: var(--accent); font-weight: 500; white-space: nowrap; }
+.addedTag { font-size: 0.72rem; color: var(--green); font-weight: 500; }
+.dayPlaces { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.miniPlace { font-size: 0.68rem; color: var(--light-text); background: var(--card-bg); border: 1px solid var(--border); padding: 0.12rem 0.45rem; border-radius: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+.morePlaces { font-size: 0.68rem; color: var(--light-text); padding: 0.12rem 0.35rem; }
+.emptyDay { font-size: 0.72rem; color: var(--light-text); font-style: italic; }
