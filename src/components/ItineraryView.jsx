@@ -360,20 +360,24 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
   const handleMovePlace = useCallback((itineraryId, fromDayId, fromListIdx, toDayId, toListIdx) => {
     const fromDay = itinerary.days.find(d => d.id === fromDayId)
     if (!fromDay) return
-    const merged = buildMergedItemsStatic(fromDay)
+    const merged = buildMergedItemsStatic(fromDay, itinerary.days)
     const item = merged[fromListIdx]
     if (!item || item.type !== 'place') return
-    // Find real place index
     const realFromIdx = item.idx
-    // Find real to index in target day
+
     const toDay = itinerary.days.find(d => d.id === toDayId)
-    let realToIdx = toListIdx
-    if (toDay && toListIdx !== 9999) {
-      const toMerged = buildMergedItemsStatic(toDay)
-      const toItem = toMerged[toListIdx]
-      realToIdx = toItem?.type === 'place' ? toItem.idx : toDay.places.length
+    if (!toDay) return
+
+    let realToIdx
+    if (toListIdx === 9999) {
+      realToIdx = 9999
+    } else {
+      // Find how many places come before this list index in the merged list
+      const toMerged = buildMergedItemsStatic(toDay, itinerary.days)
+      const placesBeforeIdx = toMerged.slice(0, toListIdx).filter(i => i.type === 'place').length
+      realToIdx = placesBeforeIdx
     }
-    onMove(itineraryId, fromDayId, realFromIdx, toDayId, realToIdx === 9999 ? 9999 : realToIdx)
+    onMove(itineraryId, fromDayId, realFromIdx, toDayId, realToIdx)
   }, [itinerary, onMove])
 
   const { onPointerDown, dropTarget } = useDragDrop(handleMovePlace, handleMoveEvent, itinerary.id)
