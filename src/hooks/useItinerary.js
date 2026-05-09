@@ -68,9 +68,26 @@ export function useItinerary() {
   const movePlace = useCallback((itineraryId, fromDayId, fromIdx, toDayId, toIdx) => {
     updateAndSave(itineraries, itineraryId, itin => {
       let moved = null
-      const days = itin.days.map(day => { if(day.id!==fromDayId) return day; const p=[...day.places]; [moved]=p.splice(fromIdx,1); return {...day,places:p} })
-        .map(day => { if(day.id!==toDayId) return day; const p=[...day.places]; if(fromDayId===toDayId){p.splice(toIdx,0,moved);return{...day,places:p}} if(!p.some(x=>x.place_id===moved.place_id)) p.splice(toIdx===9999?p.length:toIdx,0,moved); return{...day,places:p} })
-      return {...itin,days}
+      const days = itin.days.map(day => {
+        if (day.id !== fromDayId) return day
+        const p = [...day.places]
+        ;[moved] = p.splice(fromIdx, 1)
+        if (fromDayId === toDayId) {
+          // Adjust toIdx if same day and moving forward (element removed shifts indices)
+          const adjustedIdx = toIdx === 9999 ? p.length : (fromIdx < toIdx ? toIdx - 1 : toIdx)
+          p.splice(adjustedIdx, 0, moved)
+          return { ...day, places: p }
+        }
+        return { ...day, places: p }
+      }).map(day => {
+        if (day.id !== toDayId || fromDayId === toDayId) return day
+        const p = [...day.places]
+        if (!p.some(x => x.place_id === moved.place_id)) {
+          p.splice(toIdx === 9999 ? p.length : toIdx, 0, moved)
+        }
+        return { ...day, places: p }
+      })
+      return { ...itin, days }
     }, setItineraries, activeItinerary, setActiveItinerary)
   }, [itineraries, activeItinerary])
 
