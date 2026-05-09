@@ -176,7 +176,7 @@
 .toggleLabel { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; color: var(--earth); cursor: pointer; }
 .toggleLabel input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
 
-.citiesSection { display: flex; flex-direction: column; gap: 0.5rem; background: var(--sand); border-radius: 10px; padding: 0.85rem; }
+.citiesSection { display: flex; flex-direction: column; gap: 0.75rem; background: var(--sand); border-radius: 10px; padding: 0.85rem; }
 .citiesLabel { font-size: 0.75rem; font-weight: 500; color: var(--light-text); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem; }
 
 .cityRow { display: flex; align-items: center; gap: 0.5rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.65rem; }
@@ -191,7 +191,7 @@
 .addCityBtn:hover { border-color: var(--accent); color: var(--accent); }
 .daysWarning { background: rgba(196,131,74,0.1) !important; color: var(--earth) !important; }
 
-.cityBlock { display: flex; flex-direction: column; gap: 4px; }
+.cityBlock { display: flex; flex-direction: column; gap: 6px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; }
 .sharedLabel { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--light-text); cursor: pointer; padding: 2px 0 2px 4px; }
 .sharedLabel input { accent-color: var(--accent); cursor: pointer; }
 

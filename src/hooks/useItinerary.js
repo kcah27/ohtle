@@ -28,7 +28,11 @@ export function useItinerary() {
       let cityLabel = ''
       if (cities && cities.length > 0) {
         // Find all cities active on this date
-        const activeCities = cities.filter(c => c.startDate && c.endDate && dateStr >= c.startDate && dateStr <= c.endDate)
+        const activeCities = cities.filter((c, ci) => {
+          const cStart = ci === 0 ? startDate : c.startDate
+          const cEnd = c.endDate
+          return cStart && cEnd && dateStr >= cStart && dateStr <= cEnd
+        })
         if (activeCities.length >= 2) {
           // Transition day — show "City A → City B"
           cityLabel = activeCities.map(c => c.name).join(' → ')

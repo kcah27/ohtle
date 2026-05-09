@@ -13,7 +13,7 @@ function daysBetween(a, b) {
   return Math.round((new Date(b) - new Date(a)) / 86400000) + 1
 }
 
-function CityRow({ city, onChange, onRemove, canRemove, tripStart, tripEnd }) {
+function CityRow({ city, onChange, onRemove, canRemove, tripStart, tripEnd, isFirst }) {
   return (
     <div className={styles.cityBlock}>
       <div className={styles.cityRow}>
@@ -22,14 +22,16 @@ function CityRow({ city, onChange, onRemove, canRemove, tripStart, tripEnd }) {
         {canRemove && <button className={styles.removeCityBtn} onClick={onRemove}>✕</button>}
       </div>
       <div className={styles.cityDates}>
-        <div className={styles.cityDateField}>
-          <label>Llegada</label>
-          <input type="date" className={styles.cityDateInput}
-            min={tripStart} max={tripEnd}
-            value={city.startDate}
-            onChange={e => onChange({ ...city, startDate: e.target.value })} />
-        </div>
-        <div className={styles.cityDateArrow}>→</div>
+        {!isFirst && (
+          <div className={styles.cityDateField}>
+            <label>Llegada</label>
+            <input type="date" className={styles.cityDateInput}
+              min={tripStart} max={tripEnd}
+              value={city.startDate}
+              onChange={e => onChange({ ...city, startDate: e.target.value })} />
+          </div>
+        )}
+        {!isFirst && <div className={styles.cityDateArrow}>→</div>}
         <div className={styles.cityDateField}>
           <label>Salida</label>
           <input type="date" className={styles.cityDateInput}
@@ -37,9 +39,11 @@ function CityRow({ city, onChange, onRemove, canRemove, tripStart, tripEnd }) {
             value={city.endDate}
             onChange={e => onChange({ ...city, endDate: e.target.value })} />
         </div>
-        {city.startDate && city.endDate && (
+        {((isFirst && city.endDate) || (!isFirst && city.startDate && city.endDate)) && (
           <div className={styles.cityDaysCount}>
-            {daysBetween(city.startDate, city.endDate)}d
+            {isFirst
+              ? '1d'
+              : `${daysBetween(city.startDate, city.endDate)}d`}
           </div>
         )}
       </div>
@@ -128,7 +132,8 @@ export default function CreateItineraryModal({ onClose, onCreate, onAuto }) {
                   onRemove={() => setCities(cs => cs.filter(c => c.id !== city.id))}
                   canRemove={cities.length > 1}
                   tripStart={form.startDate}
-                  tripEnd={form.endDate} />
+                  tripEnd={form.endDate}
+                  isFirst={idx === 0} />
               ))}
               <button className={styles.addCityBtn}
                 onClick={() => setCities(cs => [...cs, { id: Date.now(), name: '', startDate: '', endDate: '' }])}>
