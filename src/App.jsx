@@ -18,6 +18,7 @@ export default function App() {
   const { generate, generating } = useAutoItinerary()
 
   const [searched, setSearched] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showAutoWizard, setShowAutoWizard] = useState(false)
   const [showList, setShowList] = useState(false)
@@ -30,6 +31,12 @@ export default function App() {
     const newItin = createItinerary(formData)
     setShowCreateModal(false)
     setActiveItinerary(newItin)
+    // Pre-fill search with destination
+    if (formData.destination) {
+      setSearchQuery(formData.destination)
+      setSearched(true)
+      search({ query: formData.destination, types: ['tourist_attraction'] })
+    }
   }
 
   const handleAutoGenerate = async (formData) => {
@@ -99,7 +106,7 @@ export default function App() {
           </div>
         )}
 
-        <SearchBar onSearch={handleSearch} loading={loading} />
+        <SearchBar onSearch={handleSearch} loading={loading} initialQuery={searchQuery} />
         {error && <div className={styles.error}>⚠️ {error}</div>}
         {loading && <div className={styles.loader}><span /><span /><span /></div>}
 

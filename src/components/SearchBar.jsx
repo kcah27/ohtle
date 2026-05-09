@@ -10,8 +10,8 @@ const FILTERS = [
   { type: 'store', label: '🧵 Artesanías' },
 ]
 
-export default function SearchBar({ onSearch, loading }) {
-  const [query, setQuery] = useState('')
+export default function SearchBar({ onSearch, loading, initialQuery }) {
+  const [query, setQuery] = useState(initialQuery || '')
   const [selectedTypes, setSelectedTypes] = useState(['tourist_attraction'])
   const [geoLoading, setGeoLoading] = useState(false)
 

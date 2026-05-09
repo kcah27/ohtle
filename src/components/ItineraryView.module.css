@@ -1,7 +1,7 @@
 .container { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-.topBar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-.backBtn { background: none; border: none; font-size: 0.9rem; color: var(--earth); cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; }
-.backBtn:hover { color: var(--accent); }
+.topBar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; position: sticky; top: 0; z-index: 50; background: var(--sand); padding: 0.75rem 0; }
+.backBtn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; font-size: 0.88rem; color: var(--earth); cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; padding: 0.4rem 1rem; transition: all 0.15s; }
+.backBtn:hover { border-color: var(--accent); color: var(--accent); }
 .deleteBtn { background: none; border: 1px solid var(--border); border-radius: 8px; font-size: 0.82rem; color: var(--light-text); cursor: pointer; font-family: 'DM Sans', sans-serif; padding: 0.4rem 0.85rem; }
 .deleteBtn:hover { border-color: #c0392b; color: #c0392b; }
 .heroCard { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem; }
@@ -46,7 +46,7 @@
 .placeInfo { flex: 1; min-width: 0; }
 .placeTopRow { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.2rem; }
 .categoryPill { display: inline-block; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.08em; padding: 0.1rem 0.45rem; border-radius: 20px; }
-.timeTag { font-size: 0.68rem; color: var(--light-text); }
+.timeTag { font-size: 0.68rem; color: var(--accent); font-weight: 500; }
 .placeName { font-size: 0.87rem; font-weight: 500; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .placeMeta { display: flex; gap: 0.4rem; align-items: center; margin-top: 0.12rem; flex-wrap: wrap; }
 .placeRating { font-size: 0.7rem; color: #E8A83A; font-weight: 500; }
@@ -80,3 +80,11 @@
   .heroCard { flex-direction: column; text-align: center; }
   .heroMeta { justify-content: center; }
 }
+
+/* City transition separator within same day */
+.cityTransition { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0 0.65rem 26px; }
+.cityTransitionLine { flex: 1; height: 1px; background: var(--accent); opacity: 0.3; }
+.cityTransitionBadge { font-size: 0.75rem; font-weight: 600; color: var(--accent); background: rgba(196,131,74,0.1); border: 1px solid rgba(196,131,74,0.3); padding: 0.2rem 0.75rem; border-radius: 20px; white-space: nowrap; font-family: 'Playfair Display', serif; }
+
+/* Flight arrival tag */
+.flightArrival { font-size: 0.68rem; color: var(--green); font-weight: 500; }

@@ -142,6 +142,9 @@ function useDragDrop(onMovePlace, onMoveEvent, itineraryId) {
 function EventRow({ event, listIdx, dayId, itineraryId, onRemove, onEdit, onPointerDown, dropTarget, isLast }) {
   const rowRef = useRef(null)
   const isDropTarget = dropTarget?.dayId===dayId && dropTarget?.idx===listIdx
+  const isFlight = event.type === 'flight'
+  const isArrival = event._isArrival // synthetic arrival node
+
   return (
     <div className={styles.treeItem} data-place-row data-day-id={dayId} data-idx={listIdx} ref={rowRef}>
       <div className={styles.treeLine}>
@@ -150,16 +153,27 @@ function EventRow({ event, listIdx, dayId, itineraryId, onRemove, onEdit, onPoin
       </div>
       <div className={`${styles.eventCard} ${isDropTarget?styles.dragOver:''}`}
         style={{ borderLeftColor: event.color||'#8B6B4A' }}
-        onClick={() => onEdit(event)}>
+        onClick={() => !isArrival && onEdit(event)}>
         <div className={styles.dragHandle} data-handle
-          onPointerDown={e=>{e.stopPropagation();onPointerDown(e,dayId,listIdx,rowRef.current,true)}}>⠿</div>
+          onPointerDown={e=>{e.stopPropagation();if(!isArrival)onPointerDown(e,dayId,listIdx,rowRef.current,true)}}>⠿</div>
         <span className={styles.eventIcon}>{event.icon}</span>
         <div className={styles.eventInfo}>
-          {event.time && <span className={styles.eventTime}>🕐 {event.time}</span>}
-          <div className={styles.eventTitle}>{event.title}</div>
+          {isFlight && !isArrival && event.time && (
+            <span className={styles.eventTime}>
+              Salida · {event.time}
+              {event.arrivalTime ? ` → ${event.arrivalTime}${calcDayDiff(event.time, event.arrivalTime)}` : ''}
+            </span>
+          )}
+          {isFlight && isArrival && event.arrivalTime && (
+            <span className={styles.eventTime}>Llegada · {event.arrivalTime}</span>
+          )}
+          {!isFlight && event.time && <span className={styles.eventTime}>🕐 {event.time}</span>}
+          <div className={styles.eventTitle}>
+            {isFlight ? (isArrival ? `Llegada · ${event.title}` : `Salida · ${event.title}`) : event.title}
+          </div>
           {event.note && <div className={styles.eventNote}>{event.note}</div>}
         </div>
-        <button className={styles.removeBtn} onClick={e=>{e.stopPropagation();onRemove(itineraryId,dayId,event.id)}}>✕</button>
+        {!isArrival && <button className={styles.removeBtn} onClick={e=>{e.stopPropagation();onRemove(itineraryId,dayId,event.id)}}>✕</button>}
       </div>
     </div>
   )
@@ -188,7 +202,10 @@ function PlaceTreeItem({ place, listIdx, dayId, itineraryId, onRemove, onPointer
         <div className={styles.placeInfo}>
           <div className={styles.placeTopRow}>
             <div className={styles.categoryPill} style={{color:cat.color,background:cat.bg}}>{cat.label}</div>
-            {place.time && <span className={styles.timeTag}>🕐 {place.time}{place.duration?` · ${place.duration}h`:''}</span>}
+            {place.time && <span className={styles.timeTag}>
+              🕐 {place.time}
+              {place.duration ? ` → ${calcEndTime(place.time, place.duration)} · ${place.duration}h` : ''}
+            </span>}
             {place.note && <span className={styles.noteIndicator}>📝</span>}
           </div>
           <div className={styles.placeName}>{place.name}</div>
@@ -203,12 +220,48 @@ function PlaceTreeItem({ place, listIdx, dayId, itineraryId, onRemove, onPointer
   )
 }
 
+// Calculate end time from start + duration hours
+function calcEndTime(startTime, durationHours) {
+  if (!startTime || !durationHours) return ''
+  const [h, m] = startTime.split(':').map(Number)
+  const totalMins = h * 60 + m + parseFloat(durationHours) * 60
+  const endH = Math.floor(totalMins / 60) % 24
+  const endM = totalMins % 60
+  return `${String(endH).padStart(2,'0')}:${String(endM).padStart(2,'0')}`
+}
+
+// Calculate day difference for flights
+function calcDayDiff(depTime, arrTime) {
+  if (!depTime || !arrTime) return ''
+  const dep = toMinutes(depTime)
+  const arr = toMinutes(arrTime)
+  if (arr < dep) return ' +1'
+  return ''
+}
+
 // Standalone version for use outside component render
-function buildMergedItemsStatic(day) {
+function buildMergedItemsStatic(day, allDays) {
   const events = day.events || []
   const all = []
   day.places.forEach((p,i) => all.push({ type:'place', data:p, idx:i }))
-  events.forEach((e,i) => all.push({ type:'event', data:e, idx:i }))
+  events.forEach((e,i) => {
+    all.push({ type:'event', data:e, idx:i })
+    // If flight arriving this day, inject arrival node
+    if (e.type === 'flight' && e.arrivalDayId === day.id && allDays) {
+      all.push({ type:'event', data:{ ...e, _isArrival:true, time: e.arrivalTime||'' }, idx:i, _arrival:true })
+    }
+  })
+  // Also check if any flight from another day arrives here
+  if (allDays) {
+    allDays.forEach(otherDay => {
+      if (otherDay.id === day.id) return
+      ;(otherDay.events||[]).forEach((e,i) => {
+        if (e.type === 'flight' && e.arrivalDayId === day.id) {
+          all.push({ type:'event', data:{ ...e, _isArrival:true, time: e.arrivalTime||'' }, idx:`arr-${e.id}`, _arrival:true })
+        }
+      })
+    })
+  }
   all.sort((a,b) => {
     const ta = a.data.time||''; const tb = b.data.time||''
     if(!ta&&!tb) return 0; if(!ta) return 1; if(!tb) return -1; return ta.localeCompare(tb)
@@ -257,7 +310,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
 
   const totalPlaces = itinerary.days.reduce((acc,d) => acc + d.places.length + (d.events||[]).length, 0)
 
-  function buildMergedItems(day) { return buildMergedItemsStatic(day) }
+  function buildMergedItems(day) { return buildMergedItemsStatic(day, itinerary.days) }
 
   const sections = []
   let currentCity = null
@@ -326,7 +379,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                       const gap = (thisTime!==null && nextTime!==null) ? nextTime-(thisTime+thisDur) : null
 
                       return (
-                        <React.Fragment key={item.type==='place'?item.data.place_id:item.data.id}>
+                        <React.Fragment key={item.type==='place'?item.data.place_id:(item.data._isArrival?`arr-${item.data.id}`:item.data.id)}>
                           {item.type==='event'
                             ? <EventRow event={item.data} listIdx={listIdx} dayId={day.id} itineraryId={itinerary.id}
                                 onRemove={onRemoveEvent} onEdit={e=>handleEditEvent(e,day.id)}
@@ -335,6 +388,14 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                                 onRemove={onRemovePlace} onPointerDown={onPointerDown}
                                 dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d)}} />
                           }
+                          {/* City transition after flight arrival */}
+                          {item.type==='event' && item.data._isArrival && item.data.destination && (
+                            <div className={styles.cityTransition}>
+                              <div className={styles.cityTransitionLine} />
+                              <div className={styles.cityTransitionBadge}>📍 {item.data.destination}</div>
+                              <div className={styles.cityTransitionLine} />
+                            </div>
+                          )}
                           {gap!==null && gap>0 && !isLast && <GapCard minutes={gap} />}
                         </React.Fragment>
                       )
@@ -356,6 +417,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
         <AddEventModal
           dayId={addingEventDayId||editingEventDayId}
           itineraryId={itinerary.id}
+          allDays={itinerary.days}
           onAdd={handleSaveEvent}
           onClose={()=>{setAddingEventDayId(null);setEditingEvent(null);setEditingEventDayId(null)}}
           editingEvent={editingEvent}
