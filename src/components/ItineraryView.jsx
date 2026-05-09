@@ -105,10 +105,10 @@ function useDragDrop(onMovePlace, onMoveEvent, itineraryId) {
     setDropTarget(val)
   }
 
-  const onPointerDown = useCallback((e, dayId, idx, el, isEvent) => {
+  const onPointerDown = useCallback((e, dayId, itemId, el, isEvent) => {
     if (!e.target.closest('[data-handle]')) return
     e.preventDefault()
-    globalDrag = { dayId, idx, isEvent }
+    globalDrag = { dayId, itemId, isEvent }
     const clone = el.cloneNode(true)
     const rect = el.getBoundingClientRect()
     clone.style.cssText = `position:fixed;width:${rect.width}px;left:${rect.left}px;top:${rect.top}px;opacity:0.85;pointer-events:none;z-index:9999;background:var(--card-bg);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.18);`
@@ -129,8 +129,8 @@ function useDragDrop(onMovePlace, onMoveEvent, itineraryId) {
       if(dragClone.current){document.body.removeChild(dragClone.current);dragClone.current=null}
       const prev = dropTargetRef.current
       if(globalDrag && prev){
-        const{dayId:fD,idx:fI,isEvent:fE}=globalDrag; const{dayId:tD,idx:tI}=prev
-        if(fD!==tD||fI!==tI){ fE ? onMoveEvent(itineraryId,fD,fI,tD,tI) : onMovePlace(itineraryId,fD,fI,tD,tI) }
+        const{dayId:fD, itemId:fId, isEvent:fE}=globalDrag; const{dayId:tD,idx:tI}=prev
+        fE ? onMoveEvent(itineraryId,fD,fId,tD,tI) : onMovePlace(itineraryId,fD,fId,tD,tI)
       }
       globalDrag=null
       updateDropTarget(null)
@@ -158,7 +158,7 @@ function EventRow({ event, listIdx, dayId, itineraryId, onRemove, onEdit, onPoin
         style={{ borderLeftColor: event.color||'#8B6B4A' }}
         onClick={() => !isArrival && onEdit(event)}>
         <div className={styles.dragHandle} data-handle
-          onPointerDown={e=>{e.stopPropagation();if(!isArrival)onPointerDown(e,dayId,listIdx,rowRef.current,true)}}>⠿</div>
+          onPointerDown={e=>{e.stopPropagation();if(!isArrival)onPointerDown(e,dayId,event.id,rowRef.current,true)}}>⠿</div>
         <span className={styles.eventIcon}>{event.icon}</span>
         <div className={styles.eventInfo}>
           {isFlight && !isArrival && event.time && (
@@ -197,7 +197,7 @@ function PlaceTreeItem({ place, listIdx, dayId, itineraryId, onRemove, onPointer
       </div>
       <div className={`${styles.placeCard} ${isDropTarget?styles.dragOver:''}`} onClick={()=>onOpenDetail(place,dayId)}>
         <div className={styles.dragHandle} data-handle
-          onPointerDown={e=>{e.stopPropagation();onPointerDown(e,dayId,listIdx,rowRef.current,false)}}>⠿</div>
+          onPointerDown={e=>{e.stopPropagation();onPointerDown(e,dayId,place.place_id,rowRef.current,false)}}>⠿</div>
         {photoUrl
           ? <img className={styles.placePhoto} src={photoUrl} alt={place.name} onError={e=>e.target.style.display='none'} />
           : <div className={styles.placeEmoji}>{emoji}</div>
@@ -347,39 +347,41 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
     printWindow.document.close()
   }
 
-  // Move event using merged list index
-  const handleMoveEvent = useCallback((itineraryId, fromDayId, fromListIdx, toDayId, toListIdx) => {
-    const fromDay = itinerary.days.find(d => d.id === fromDayId)
-    if (!fromDay) return
-    const merged = buildMergedItemsStatic(fromDay, itinerary.days)
-    const item = merged[fromListIdx]
-    if (!item || item.type !== 'event') return
-    onMoveEvent(itineraryId, fromDayId, item.data.id, toDayId, toListIdx)
+  // Move event by event ID
+  const handleMoveEvent = useCallback((itineraryId, fromDayId, eventId, toDayId, toListIdx) => {
+    const toDay = itinerary.days.find(d => d.id === toDayId)
+    if (!toDay) return
+    const toMerged = buildMergedItemsStatic(toDay, itinerary.days)
+    const placesBeforeIdx = toMerged.slice(0, toListIdx).filter(i => i.type === 'place').length
+    onMoveEvent(itineraryId, fromDayId, eventId, toDayId, toListIdx)
   }, [itinerary, onMoveEvent])
 
-  // Move place using merged list index
-  const handleMovePlace = useCallback((itineraryId, fromDayId, fromListIdx, toDayId, toListIdx) => {
+  // Move place by place_id
+  const handleMovePlace = useCallback((itineraryId, fromDayId, placeId, toDayId, toListIdx) => {
     const fromDay = itinerary.days.find(d => d.id === fromDayId)
     if (!fromDay) return
-    const merged = buildMergedItemsStatic(fromDay, itinerary.days)
-    const item = merged[fromListIdx]
-    if (!item || item.type !== 'place') return
-    const realFromIdx = item.idx
+    const realFromIdx = fromDay.places.findIndex(p => p.place_id === placeId)
+    if (realFromIdx === -1) return
 
     const toDay = itinerary.days.find(d => d.id === toDayId)
     if (!toDay) return
 
-    // Count places before toListIdx, skipping separator
-    const toMerged = buildMergedItemsStatic(toDay, itinerary.days)
-    const placesBeforeIdx = toMerged.slice(0, toListIdx).filter(i => i.type === 'place').length
-    const realToIdx = toListIdx === 9999 ? 9999 : placesBeforeIdx
+    let realToIdx
+    if (toListIdx === 9999) {
+      realToIdx = 9999
+    } else {
+      const toMerged = buildMergedItemsStatic(toDay, itinerary.days)
+      realToIdx = toMerged.slice(0, toListIdx).filter(i => i.type === 'place').length
+    }
 
     onMove(itineraryId, fromDayId, realFromIdx, toDayId, realToIdx)
 
-    // Update separatorIdx if element crossed the separator in same day
+    // Update separatorIdx if crossing separator in same day
     if (fromDayId === toDayId && fromDay.cityLabel?.includes('→')) {
+      const merged = buildMergedItemsStatic(fromDay, itinerary.days)
+      const fromListIdx = merged.findIndex(i => i.type === 'place' && i.data.place_id === placeId)
       const sepItem = merged.find(i => i.type === 'separator')
-      if (sepItem) {
+      if (sepItem && fromListIdx !== -1) {
         const sepListIdx = sepItem.listIdx
         let newSepIdx = fromDay.separatorIdx !== undefined ? fromDay.separatorIdx : Math.ceil(merged.length / 2) - 1
         if (fromListIdx < sepListIdx && toListIdx > sepListIdx) newSepIdx = Math.max(0, newSepIdx - 1)
