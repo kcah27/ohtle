@@ -141,3 +141,13 @@
 }
 
 .newBtn:hover { background: var(--accent-hover); }
+
+.itemWrap { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--sand); }
+.item { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; background: var(--sand); cursor: pointer; text-align: left; transition: all 0.15s; font-family: 'DM Sans', sans-serif; width: 100%; border: none; }
+.item:hover { background: var(--card-bg); }
+.itemTop { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.25rem; }
+.statusBadge { font-size: 0.68rem; font-weight: 500; padding: 0.12rem 0.5rem; border-radius: 20px; white-space: nowrap; }
+.statusRow { display: flex; gap: 0.35rem; padding: 0.5rem 0.75rem; border-top: 1px solid var(--border); background: var(--card-bg); flex-wrap: wrap; }
+.statusBtn { font-size: 0.68rem; padding: 0.2rem 0.6rem; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--light-text); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.statusBtn:hover { border-color: var(--accent); color: var(--accent); }
+.statusActive { font-weight: 500; }

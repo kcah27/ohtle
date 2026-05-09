@@ -276,6 +276,65 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
   const [editingEvent, setEditingEvent] = useState(null)
   const [editingEventDayId, setEditingEventDayId] = useState(null)
 
+  const handleShare = () => {
+    const shareData = btoa(encodeURIComponent(JSON.stringify(itinerary)))
+    const url = `${window.location.origin}/share#${shareData}`
+    navigator.clipboard.writeText(url).then(() => alert('¡Link copiado al portapapeles! 🔗'))
+  }
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank')
+    const totalPlaces = itinerary.days.reduce((acc,d) => acc + d.places.length, 0)
+    const startFmt = new Date(itinerary.startDate+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})
+    const endFmt = new Date(itinerary.endDate+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})
+
+    const CAT = { lodging:'HOTEL', breakfast:'DESAYUNO', lunch:'COMIDA', dinner:'CENA', attraction:'ATRACCIÓN' }
+    const CAT_COLOR = { lodging:'#3D6B4F', breakfast:'#8B6B4A', lunch:'#8B6B4A', dinner:'#1A1208', attraction:'#C4834A' }
+
+    const daysHtml = itinerary.days.map(day => {
+      const dateFmt = new Date(day.date+'T12:00:00').toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'})
+      const chips = day.places.map(p => {
+        const cat = p.category || 'attraction'
+        const color = CAT_COLOR[cat] || '#C4834A'
+        const label = CAT[cat] || 'LUGAR'
+        return `<span style="font-size:9px;padding:3px 8px;border-radius:20px;border:1px solid ${color}44;color:${color};background:${color}11;white-space:nowrap">${p.name}</span>`
+      }).join('')
+      const events = (day.events||[]).map(e => `<span style="font-size:9px;padding:3px 8px;border-radius:20px;border:1px solid ${e.color||'#8B6B4A'}44;color:${e.color||'#8B6B4A'};background:${e.color||'#8B6B4A'}11;white-space:nowrap">${e.icon} ${e.title}</span>`).join('')
+      return `
+        <div style="display:flex;gap:12px;margin-bottom:12px;padding-bottom:12px;border-bottom:0.5px solid #E8E0D4">
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:28px">
+            <div style="width:26px;height:26px;border-radius:50%;background:rgba(196,131,74,0.15);border:1.5px solid #C4834A;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#C4834A;flex-shrink:0">${day.dayNumber}</div>
+            <div style="width:1px;flex:1;background:#E8E0D4;margin:3px 0"></div>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:11px;font-weight:500;color:#1A1208;margin-bottom:6px;text-transform:capitalize">${dateFmt}${day.cityLabel ? ` · ${day.cityLabel}` : ''}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px">${chips}${events}</div>
+          </div>
+        </div>`
+    }).join('')
+
+    printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${itinerary.name}</title>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0} body{font-family:'DM Sans',sans-serif;background:white;padding:0}
+    @media print{body{padding:0}}</style></head><body>
+    <div style="max-width:600px;margin:0 auto;padding:0">
+      <div style="background:#1A1208;padding:28px 24px 20px;position:relative;overflow:hidden">
+        <div style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(196,131,74,0.04) 3px,rgba(196,131,74,0.04) 6px)"></div>
+        <div style="position:absolute;top:16px;right:16px;width:36px;height:42px;border:1.5px solid rgba(196,131,74,0.4);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:16px">✈️</div>
+        <div style="font-size:9px;color:#C4834A;text-transform:uppercase;letter-spacing:0.18em;margin-bottom:5px;position:relative">Ohtle · itinerario de viaje</div>
+        <div style="font-size:26px;color:white;font-family:'Playfair Display',serif;margin-bottom:5px;position:relative">${itinerary.name}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.5);position:relative;display:flex;gap:16px">
+          <span>📍 ${itinerary.destination}</span>
+          <span>📅 ${startFmt} → ${endFmt}</span>
+          <span>📌 ${totalPlaces} paradas</span>
+        </div>
+      </div>
+      <div style="padding:20px 24px">${daysHtml}</div>
+    </div>
+    <script>window.onload=()=>{window.print()}<\/script></body></html>`)
+    printWindow.document.close()
+  }
+
   // Move event using merged list index
   const handleMoveEvent = useCallback((itineraryId, fromDayId, fromListIdx, toDayId, toListIdx) => {
     const fromDay = itinerary.days.find(d => d.id === fromDayId)
@@ -331,7 +390,15 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
     <div className={styles.container}>
       <div className={styles.topBar}>
         <button className={styles.backBtn} onClick={onBack}>← Volver</button>
-        <button className={styles.deleteBtn} onClick={()=>{if(confirm('¿Eliminar este itinerario?'))onDelete(itinerary.id)}}>🗑 Eliminar</button>
+        <div className={styles.topBarRight}>
+          {(itinerary.status === 'ready' || itinerary.status === 'archived') && (
+            <>
+              <button className={styles.actionBtn} onClick={() => handleShare()}>🔗 Compartir</button>
+              <button className={styles.actionBtn} onClick={() => handlePrint()}>🖨 Imprimir</button>
+            </>
+          )}
+          <button className={styles.deleteBtn} onClick={() => { if(confirm('¿Eliminar este itinerario?')) onDelete(itinerary.id) }}>🗑</button>
+        </div>
       </div>
 
       <div className={styles.heroCard}>

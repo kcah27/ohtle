@@ -22,21 +22,23 @@ export function useItinerary() {
   const createItinerary = useCallback(({ name, destination, startDate, endDate, cities }) => {
     const start = new Date(startDate); const end = new Date(endDate)
     const dayCount = Math.round((end - start) / 86400000) + 1
-    let dayOffset = 0
     const days = Array.from({ length: dayCount }, (_, i) => {
       const date = new Date(start); date.setDate(start.getDate() + i)
-      // Assign cityLabel if cities provided
       let cityLabel = ''
       if (cities && cities.length > 0) {
         let acc = 0
-        for (const city of cities) {
+        for (let ci = 0; ci < cities.length; ci++) {
+          const city = cities[ci]
+          const next = cities[ci + 1]
+          const isSharedDay = city.shared && next && i === acc + city.days - 1
+          if (isSharedDay) { cityLabel = `${city.name} → ${next.name}`; break }
           if (i < acc + city.days) { cityLabel = city.name; break }
-          acc += city.days
+          acc += city.days - (city.shared && next ? 1 : 0)
         }
       }
       return { id: `day-${Date.now()}-${i}`, dayNumber: i+1, date: date.toISOString().split('T')[0], places:[], events:[], cityLabel }
     })
-    const newItin = { id: Date.now().toString(), name, destination, startDate, endDate, days, createdAt: new Date().toISOString() }
+    const newItin = { id: Date.now().toString(), name, destination, startDate, endDate, days, status: 'progress', createdAt: new Date().toISOString() }
     const updated = [...itineraries, newItin]; setItineraries(updated); saveItineraries(updated); setActiveItinerary(newItin)
     return newItin
   }, [itineraries])
@@ -106,10 +108,16 @@ export function useItinerary() {
     updateAndSave(itineraries, itineraryId, itin => ({ ...itin, days: itin.days.map(day => day.id!==dayId ? day : {...day,cityLabel}) }), setItineraries, activeItinerary, setActiveItinerary)
   }, [itineraries, activeItinerary])
 
+  const updateStatus = useCallback((itineraryId, status) => {
+    const updated = itineraries.map(i => i.id !== itineraryId ? i : { ...i, status })
+    setItineraries(updated); saveItineraries(updated)
+    if (activeItinerary?.id === itineraryId) setActiveItinerary(updated.find(i => i.id === itineraryId))
+  }, [itineraries, activeItinerary])
+
   const deleteItinerary = useCallback((itineraryId) => {
     const updated = itineraries.filter(i=>i.id!==itineraryId); setItineraries(updated); saveItineraries(updated)
     if(activeItinerary?.id===itineraryId) setActiveItinerary(null)
   }, [itineraries, activeItinerary])
 
-  return { itineraries, activeItinerary, setActiveItinerary, createItinerary, addPlaceToDay, removePlaceFromDay, updatePlace, movePlace, addEvent, updateEvent, moveEvent, removeEvent, updateDayLabel, deleteItinerary }
+  return { itineraries, activeItinerary, setActiveItinerary, createItinerary, addPlaceToDay, removePlaceFromDay, updatePlace, movePlace, addEvent, updateEvent, moveEvent, removeEvent, updateDayLabel, updateStatus, deleteItinerary }
 }

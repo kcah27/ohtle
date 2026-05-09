@@ -190,3 +190,7 @@
 .addCityBtn { border: 1.5px dashed var(--border); border-radius: 8px; background: transparent; color: var(--light-text); font-size: 0.82rem; padding: 0.5rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
 .addCityBtn:hover { border-color: var(--accent); color: var(--accent); }
 .daysWarning { background: rgba(196,131,74,0.1) !important; color: var(--earth) !important; }
+
+.cityBlock { display: flex; flex-direction: column; gap: 4px; }
+.sharedLabel { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--light-text); cursor: pointer; padding: 2px 0 2px 4px; }
+.sharedLabel input { accent-color: var(--accent); cursor: pointer; }

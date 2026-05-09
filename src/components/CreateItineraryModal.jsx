@@ -3,17 +3,26 @@ import styles from './CreateItineraryModal.module.css'
 
 const today = new Date().toISOString().split('T')[0]
 
-function CityRow({ city, onChange, onRemove, canRemove }) {
+function CityRow({ city, onChange, onRemove, canRemove, isLast }) {
   return (
-    <div className={styles.cityRow}>
-      <input className={styles.cityInput} placeholder="ej. Tokio" value={city.name}
-        onChange={e => onChange({ ...city, name: e.target.value })} />
-      <div className={styles.cityDays}>
-        <button className={styles.dayBtn} onClick={() => onChange({ ...city, days: Math.max(1, city.days-1) })}>−</button>
-        <span>{city.days}d</span>
-        <button className={styles.dayBtn} onClick={() => onChange({ ...city, days: city.days+1 })}>+</button>
+    <div className={styles.cityBlock}>
+      <div className={styles.cityRow}>
+        <input className={styles.cityInput} placeholder="ej. Tokio" value={city.name}
+          onChange={e => onChange({ ...city, name: e.target.value })} />
+        <div className={styles.cityDays}>
+          <button className={styles.dayBtn} onClick={() => onChange({ ...city, days: Math.max(1, city.days-1) })}>−</button>
+          <span>{city.days}d</span>
+          <button className={styles.dayBtn} onClick={() => onChange({ ...city, days: city.days+1 })}>+</button>
+        </div>
+        {canRemove && <button className={styles.removeCityBtn} onClick={onRemove}>✕</button>}
       </div>
-      {canRemove && <button className={styles.removeCityBtn} onClick={onRemove}>✕</button>}
+      {!isLast && (
+        <label className={styles.sharedLabel}>
+          <input type="checkbox" checked={!!city.shared}
+            onChange={e => onChange({ ...city, shared: e.target.checked })} />
+          <span>Compartido con siguiente ciudad</span>
+        </label>
+      )}
     </div>
   )
 }
@@ -31,7 +40,11 @@ export default function CreateItineraryModal({ onClose, onCreate, onAuto }) {
     return Math.round((new Date(form.endDate) - new Date(form.startDate)) / 86400000) + 1
   }
 
-  const totalCityDays = cities.reduce((a, c) => a + c.days, 0)
+  // Shared days reduce total: if city A (3d) is shared with B, last day of A = first day of B
+  const totalCityDays = cities.reduce((a, c, i) => {
+    const next = cities[i+1]
+    return a + c.days - (c.shared && next ? 1 : 0)
+  }, 0)
   const days = getDayCount()
 
   const handleSubmit = () => {
@@ -96,11 +109,12 @@ export default function CreateItineraryModal({ onClose, onCreate, onAuto }) {
           {multiCity && days > 0 && (
             <div className={styles.citiesSection}>
               <div className={styles.citiesLabel}>Ciudades y días en cada una</div>
-              {cities.map(city => (
+              {cities.map((city, idx) => (
                 <CityRow key={city.id} city={city}
                   onChange={updated => setCities(cs => cs.map(c => c.id === city.id ? updated : c))}
                   onRemove={() => setCities(cs => cs.filter(c => c.id !== city.id))}
-                  canRemove={cities.length > 1} />
+                  canRemove={cities.length > 1}
+                  isLast={idx === cities.length - 1} />
               ))}
               <button className={styles.addCityBtn} onClick={() => setCities(cs => [...cs, { id: Date.now(), name: '', days: 1 }])}>
                 + Agregar ciudad
