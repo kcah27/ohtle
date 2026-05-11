@@ -137,7 +137,6 @@ export default function App() {
       {showCreateModal && <CreateItineraryModal onClose={() => setShowCreateModal(false)} onCreate={handleCreate} onAuto={() => { setShowCreateModal(false); setShowAutoWizard(true) }} />}
       {showAutoWizard && <AutoItineraryWizard onClose={() => setShowAutoWizard(false)} onGenerate={handleAutoGenerate} generating={generating} />}
       {showList && <ItineraryList itineraries={itineraries} onSelect={handleSelectItinerary} onNew={() => { setShowList(false); setShowCreateModal(true) }} onClose={() => setShowList(false)} onStatusChange={updateStatus} />}
-      {showExplora && <ExploraMexico onClose={() => setShowExplora(false)} />}
       {addingPlace && itineraries.length > 0 && (
         <AddToDayModal
           place={addingPlace} itineraries={itineraries} activeItinerary={activeItinerary}
