@@ -18,6 +18,7 @@ export default function App() {
   const { generate, generating } = useAutoItinerary()
 
   const [searched, setSearched] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showAutoWizard, setShowAutoWizard] = useState(false)
   const [showList, setShowList] = useState(false)
