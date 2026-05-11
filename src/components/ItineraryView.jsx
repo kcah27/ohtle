@@ -444,7 +444,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                 <div className={styles.dayHeaderRight}>
                   <CityLabel value={day.cityLabel} onChange={label=>onUpdateDayLabel(itinerary.id,day.id,label)} />
                   <button className={styles.addEventBtn} onClick={()=>setAddingEventDayId(day.id)}>+ Evento</button>
-                  <span className={styles.dayCount}>{mergedItems.length}</span>
+                  <span className={styles.dayCount}>{day.places.length + (day.events||[]).length}</span>
                 </div>
               </div>
 

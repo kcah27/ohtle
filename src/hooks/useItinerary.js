@@ -163,15 +163,13 @@ export function useItinerary() {
           if (idx === -1) return day
           ;[movedEvent] = events.splice(idx, 1)
           if (fromRealId === toRealId) {
-            // Find insert position by targetEventId or toListIdx
             let insertAt
             if (targetEventId) {
               const t = events.findIndex(e => e.id === targetEventId)
-              insertAt = t === -1 ? events.length : (idx < t ? t : t)
+              insertAt = t === -1 ? events.length : t
             } else {
               insertAt = toListIdx === 9999 ? events.length : Math.min(toListIdx, events.length)
             }
-            console.log('SAME DAY EVENT', { idx, insertAt, targetEventId, events: events.map(e=>e.title?.slice(0,8)) })
             events.splice(insertAt, 0, movedEvent)
           }
           return { ...day, events }
