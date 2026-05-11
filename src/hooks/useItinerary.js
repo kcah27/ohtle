@@ -119,7 +119,6 @@ export function useItinerary() {
               finalIdx = p.length
             }
             p.splice(finalIdx, 0, moved)
-            console.log('SAME DAY MOVE', { fromIdx, finalIdx, toSection, sepIdx: day.separatorIdx, places: p.map(x=>x.name?.slice(0,8)) })
 
             // Update separatorIdx if crossing sections
             let newSepIdx = day.separatorIdx
