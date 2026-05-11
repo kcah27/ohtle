@@ -458,7 +458,8 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                       : <div className={styles.treeList}>
                           {eventsAll.map((event, i) => (
                             <EventRow key={event.id} event={event} listIdx={i} dayId={`${day.id}__A`} itineraryId={itinerary.id}
-                              onRemove={onRemoveEvent} onEdit={e=>handleEditEvent(e, day.id)}
+                              onRemove={(iId, dId, eId) => onRemoveEvent(iId, day.id, eId)}
+                              onEdit={e=>handleEditEvent(e, day.id)}
                               onPointerDown={onPointerDown} dropTarget={dropTarget} isLast={false} />
                           ))}
                           {placesA.map((place, i) => {

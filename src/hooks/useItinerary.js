@@ -151,26 +151,34 @@ export function useItinerary() {
     const parseId = id => { const p = id.split('__'); return { realId: p[0] } }
     const { realId: fromRealId } = parseId(fromDayId)
     const { realId: toRealId } = parseId(toDayId)
-    updateAndSave(itineraries, itineraryId, itin => {
-      let movedEvent = null
-      const days = itin.days.map(day => {
-        if (day.id !== fromRealId) return day
-        const events = [...(day.events||[])]
-        const idx = events.findIndex(e => e.id === fromEventId)
-        if (idx === -1) return day
-        ;[movedEvent] = events.splice(idx, 1)
-        return { ...day, events }
-      }).map(day => {
-        if (day.id !== toRealId || !movedEvent) return day
-        const events = [...(day.events||[])]
-        if (!events.some(e => e.id === movedEvent.id)) {
-          events.splice(toIdx === 9999 ? events.length : toIdx, 0, movedEvent)
-        }
-        return { ...day, events }
+    setItineraries(current => {
+      const updated = current.map(itin => {
+        if (itin.id !== itineraryId) return itin
+        let movedEvent = null
+        const days = itin.days.map(day => {
+          if (day.id !== fromRealId) return day
+          const events = [...(day.events||[])]
+          const idx = events.findIndex(e => e.id === fromEventId)
+          if (idx === -1) return day
+          ;[movedEvent] = events.splice(idx, 1)
+          if (fromRealId === toRealId) {
+            events.splice(toIdx === 9999 ? events.length : toIdx, 0, movedEvent)
+          }
+          return { ...day, events }
+        }).map(day => {
+          if (day.id !== toRealId || fromRealId === toRealId || !movedEvent) return day
+          const events = [...(day.events||[])]
+          if (!events.some(e => e.id === movedEvent.id)) {
+            events.splice(toIdx === 9999 ? events.length : toIdx, 0, movedEvent)
+          }
+          return { ...day, events }
+        })
+        return { ...itin, days }
       })
-      return { ...itin, days }
-    }, setItineraries, activeItinerary, setActiveItinerary)
-  }, [itineraries, activeItinerary])
+      saveItineraries(updated)
+      return updated
+    })
+  }, [])
 
   const addEvent = useCallback((itineraryId, dayId, event) => {
     updateAndSave(itineraries, itineraryId, itin => ({ ...itin, days: itin.days.map(day => day.id!==dayId ? day : {...day, events:[...(day.events||[]), {id:`evt-${Date.now()}`,...event}]}) }), setItineraries, activeItinerary, setActiveItinerary)
