@@ -136,7 +136,7 @@ function useDragDrop(onMovePlace, onMoveEvent, itineraryId) {
       if(globalDrag && prev){
         const{dayId:fD, itemId:fId, isEvent:fE}=globalDrag
         const{dayId:tD, idx:tI, targetPlaceId, targetEventId}=prev
-        fE ? onMoveEvent(itineraryId,fD,fId,tD,tI) : onMovePlace(itineraryId,fD,fId,tD,tI,targetPlaceId,targetEventId)
+        fE ? onMoveEvent(itineraryId,fD,fId,tD,tI,targetPlaceId,targetEventId) : onMovePlace(itineraryId,fD,fId,tD,tI,targetPlaceId,targetEventId)
       }
       globalDrag=null
       updateDropTarget(null)
@@ -363,8 +363,9 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
   }, [onMove])
 
   // Move event by event ID
-  const handleMoveEvent = useCallback((itineraryId, fromDayId, eventId, toDayId, toListIdx) => {
-    onMoveEvent(itineraryId, fromDayId, eventId, toDayId, toListIdx)
+  const handleMoveEvent = useCallback((itineraryId, fromDayId, eventId, toDayId, toListIdx, targetPlaceId, targetEventId) => {
+    console.log('HANDLE MOVE EVENT', { fromDayId, toDayId, eventId, toListIdx, targetEventId, targetPlaceId })
+    onMoveEvent(itineraryId, fromDayId, eventId, toDayId, toListIdx, targetEventId)
   }, [onMoveEvent])
 
   const { onPointerDown, dropTarget } = useDragDrop(handleMovePlace, handleMoveEvent, itinerary.id)

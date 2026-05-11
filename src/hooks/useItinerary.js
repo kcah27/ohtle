@@ -147,10 +147,11 @@ export function useItinerary() {
     })
   }, [])
 
-  const moveEvent = useCallback((itineraryId, fromDayId, fromEventId, toDayId, toIdx) => {
+  const moveEvent = useCallback((itineraryId, fromDayId, fromEventId, toDayId, toListIdx, targetEventId) => {
     const parseId = id => { const p = id.split('__'); return { realId: p[0] } }
     const { realId: fromRealId } = parseId(fromDayId)
     const { realId: toRealId } = parseId(toDayId)
+    console.log('MOVE EVENT', { fromRealId, toRealId, fromEventId, targetEventId, toListIdx, same: fromRealId===toRealId })
     setItineraries(current => {
       const updated = current.map(itin => {
         if (itin.id !== itineraryId) return itin
@@ -162,14 +163,30 @@ export function useItinerary() {
           if (idx === -1) return day
           ;[movedEvent] = events.splice(idx, 1)
           if (fromRealId === toRealId) {
-            events.splice(toIdx === 9999 ? events.length : toIdx, 0, movedEvent)
+            // Find insert position by targetEventId or toListIdx
+            let insertAt
+            if (targetEventId) {
+              const t = events.findIndex(e => e.id === targetEventId)
+              insertAt = t === -1 ? events.length : (idx < t ? t : t)
+            } else {
+              insertAt = toListIdx === 9999 ? events.length : Math.min(toListIdx, events.length)
+            }
+            console.log('SAME DAY EVENT', { idx, insertAt, targetEventId, events: events.map(e=>e.title?.slice(0,8)) })
+            events.splice(insertAt, 0, movedEvent)
           }
           return { ...day, events }
         }).map(day => {
           if (day.id !== toRealId || fromRealId === toRealId || !movedEvent) return day
           const events = [...(day.events||[])]
           if (!events.some(e => e.id === movedEvent.id)) {
-            events.splice(toIdx === 9999 ? events.length : toIdx, 0, movedEvent)
+            let insertAt
+            if (targetEventId) {
+              const t = events.findIndex(e => e.id === targetEventId)
+              insertAt = t === -1 ? events.length : t
+            } else {
+              insertAt = toListIdx === 9999 ? events.length : Math.min(toListIdx, events.length)
+            }
+            events.splice(insertAt, 0, movedEvent)
           }
           return { ...day, events }
         })
