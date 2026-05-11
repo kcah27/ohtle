@@ -106,15 +106,28 @@ export function useItinerary() {
 
           if (sameDayReal) {
             let finalIdx
-            if (targetPlaceId) {
+            const sepIdx = day.separatorIdx !== undefined ? day.separatorIdx : Math.ceil(day.places.length / 2)
+            if (toSection === 'B') {
+              // Moving to section B — insert at or after separator
+              const afterSplice = fromIdx < sepIdx ? sepIdx - 1 : sepIdx
+              if (targetPlaceId) {
+                const t = p.findIndex(x => x.place_id === targetPlaceId)
+                finalIdx = t === -1 ? afterSplice : (toIdx > fromIdx ? t + 1 : t)
+              } else {
+                finalIdx = afterSplice
+              }
+            } else if (toSection === 'A') {
+              // Moving to section A — insert before separator
+              if (targetPlaceId) {
+                const t = p.findIndex(x => x.place_id === targetPlaceId)
+                finalIdx = t === -1 ? 0 : (toIdx > fromIdx ? t + 1 : t)
+              } else {
+                finalIdx = 0
+              }
+            } else if (targetPlaceId) {
               const targetAfterSplice = p.findIndex(x => x.place_id === targetPlaceId)
               finalIdx = targetAfterSplice === -1 ? p.length :
                          toIdx > fromIdx ? targetAfterSplice + 1 : targetAfterSplice
-            } else if (toSection === 'A') {
-              finalIdx = 0
-            } else if (toSection === 'B') {
-              const sepIdx = day.separatorIdx !== undefined ? day.separatorIdx : Math.ceil(p.length / 2)
-              finalIdx = fromIdx < sepIdx ? sepIdx - 1 : sepIdx
             } else {
               finalIdx = p.length
             }
