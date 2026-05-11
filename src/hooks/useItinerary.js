@@ -105,7 +105,15 @@ export function useItinerary() {
                          toIdx > fromIdx ? targetAfterSplice + 1 : targetAfterSplice
             }
             p.splice(finalIdx, 0, moved)
-            return { ...day, places: p }
+
+            // Update separatorIdx if place crossed it
+            let newSepIdx = day.separatorIdx
+            if (newSepIdx !== undefined) {
+              if (fromIdx < newSepIdx && finalIdx >= newSepIdx) newSepIdx--
+              else if (fromIdx >= newSepIdx && finalIdx < newSepIdx) newSepIdx++
+            }
+
+            return { ...day, places: p, separatorIdx: newSepIdx }
           }
           return { ...day, places: p }
         }).map(day => {
