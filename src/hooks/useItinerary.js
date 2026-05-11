@@ -91,20 +91,24 @@ export function useItinerary() {
 
         const days = itin.days.map(day => {
           if (day.id !== fromDayId) return day
-          const p = day.places.map(x => ({...x})) // new references
+          const p = day.places.map(x => ({...x}))
           ;[moved] = p.splice(fromIdx, 1)
           if (fromDayId === toDayId) {
-            const insertAt = targetPlaceId
-              ? p.findIndex(x => x.place_id === targetPlaceId)
-              : p.length
-            const finalIdx = insertAt === -1 ? p.length : insertAt
+            let finalIdx
+            if (!targetPlaceId) {
+              finalIdx = p.length
+            } else {
+              const targetAfterSplice = p.findIndex(x => x.place_id === targetPlaceId)
+              finalIdx = targetAfterSplice === -1 ? p.length :
+                         toIdx > fromIdx ? targetAfterSplice + 1 : targetAfterSplice
+            }
             p.splice(finalIdx, 0, moved)
             return { ...day, places: p }
           }
           return { ...day, places: p }
         }).map(day => {
           if (day.id !== toDayId || fromDayId === toDayId) return day
-          const p = day.places.map(x => ({...x})) // new references
+          const p = day.places.map(x => ({...x}))
           if (!p.some(x => x.place_id === moved?.place_id)) {
             p.splice(toIdx, 0, moved)
           }
