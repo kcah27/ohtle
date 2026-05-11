@@ -227,32 +227,30 @@ window.initMap = function() {
     document.getElementById('map').classList.add('panel-open')
 
     // Use our own API to get place details
-    fetch(`/api/place-search?query=${encodeURIComponent(pueblo.nombre + ' Pueblo Mágico ' + pueblo.estado + ' México')}`)
-      .then(r => r.json())
-      .then(data => {
-        const result = data.results?.[0]
+    async function loadDetails() {
+      try {
+        const searchRes = await fetch(`/api/place-search?query=${encodeURIComponent(pueblo.nombre + ' Pueblo Mágico ' + pueblo.estado + ' México')}`)
+        const searchData = await searchRes.json()
+        const result = searchData.results?.[0]
         if (!result) { document.getElementById('detail-loading').style.display = 'none'; return }
-        return fetch(`/api/place-details?place_id=${result.place_id}`)
-      })
-      .then(r => r?.json())
-      .then(data => {
+
+        const detailRes = await fetch(`/api/place-details?place_id=${result.place_id}`)
+        const detailData = await detailRes.json()
+        const place = detailData.result
         document.getElementById('detail-loading').style.display = 'none'
-        const place = data?.result
         if (!place) return
 
-        // Photos from details
+        const keyRes = await fetch('/api/maps-key')
+        const { key } = await keyRes.json()
+
         if (place.photos?.length) {
-          fetch(`/api/maps-key`).then(r=>r.json()).then(({key}) => {
-            currentPhotos = place.photos.slice(0,5).map(p => 
-              `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${p.photo_reference}&key=${key}`
-            )
-            const dotsEl = document.getElementById('photo-dots')
-            dotsEl.innerHTML = currentPhotos.map((_,i) => `<div class="photo-dot${i===0?' active':''}" onclick="showPhotoIdx(${i})"></div>`).join('')
-            showPhoto(0)
-          })
+          currentPhotos = place.photos.slice(0,5).map(p =>
+            `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${p.photo_reference}&key=${key}`)
+          const dotsEl = document.getElementById('photo-dots')
+          dotsEl.innerHTML = currentPhotos.map((_,i) => `<div class="photo-dot${i===0?' active':''}" onclick="showPhotoIdx(${i})"></div>`).join('')
+          showPhoto(0)
         }
 
-        // Rating
         if (place.rating) {
           document.getElementById('detail-rating').style.display = 'flex'
           document.getElementById('detail-stars').textContent = '★'.repeat(Math.round(place.rating))
@@ -260,7 +258,6 @@ window.initMap = function() {
           document.getElementById('detail-rating-count').textContent = `(${(place.user_ratings_total||0).toLocaleString()} reseñas)`
         }
 
-        // Open status
         if (place.opening_hours) {
           const isOpen = place.opening_hours.open_now
           document.getElementById('detail-status').innerHTML = `<div class="detail-status ${isOpen?'open-now':'closed-now'}">${isOpen?'✓ Abierto ahora':'✗ Cerrado ahora'}</div>`
@@ -272,9 +269,8 @@ window.initMap = function() {
         if (place.website)
           document.getElementById('detail-website').innerHTML = `<a class="detail-link" href="${place.website}" target="_blank">🌐 Sitio web</a>`
 
-        const weekdays = place.opening_hours?.weekday_text
-        if (weekdays?.length)
-          document.getElementById('detail-hours').innerHTML = `<div class="detail-section">Horarios</div>${weekdays.map(h=>`<div class="hour-row"><span>${h.split(':')[0]}</span><span>${h.split(/:(.*)/s)[1]?.trim()}</span></div>`).join('')}`
+        if (place.opening_hours?.weekday_text?.length)
+          document.getElementById('detail-hours').innerHTML = `<div class="detail-section">Horarios</div>${place.opening_hours.weekday_text.map(h=>`<div class="hour-row"><span>${h.split(':')[0]}</span><span>${h.split(/:(.*)/s)[1]?.trim()}</span></div>`).join('')}`
 
         if (place.reviews?.length)
           document.getElementById('detail-reviews').innerHTML = `<div class="detail-section">Reseñas destacadas</div>${place.reviews.slice(0,3).map(r=>`
@@ -284,9 +280,11 @@ window.initMap = function() {
                 <div><div class="review-author">${r.author_name}</div><div class="review-stars">${'★'.repeat(r.rating)}</div></div>
               </div>
               <div class="review-text">${(r.text||'').slice(0,200)}${r.text?.length>200?'...':''}</div>
-            </div>`).join('')}`
-      })
-      .catch(() => { document.getElementById('detail-loading').style.display = 'none' })
+            </div>`).join('')}
+
+      } catch(e) { document.getElementById('detail-loading').style.display = 'none' }
+    }
+    loadDetails()
   }
 
   PUEBLOS.forEach(p => {
