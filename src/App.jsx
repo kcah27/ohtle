@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import ExploraMexico from './components/ExploraMexico'
+import Header from './components/Header'
 import SearchBar from './components/SearchBar'
 import PlaceCard from './components/PlaceCard'
 import CreateItineraryModal from './components/CreateItineraryModal'
@@ -18,7 +18,6 @@ export default function App() {
   const { generate, generating } = useAutoItinerary()
 
   const [searched, setSearched] = useState(false)
-  const [showExplora, setShowExplora] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showAutoWizard, setShowAutoWizard] = useState(false)
   const [showList, setShowList] = useState(false)
@@ -69,7 +68,6 @@ export default function App() {
     const current = itineraries.find(i => i.id === viewingItinerary.id) || viewingItinerary
     return (
       <>
-        <Header itineraryCount={itineraries.length} activeItinerary={activeItinerary} onShowList={() => setShowList(true)} onNewItinerary={() => setShowCreateModal(true)} onExplora={() => setShowExplora(true)} />
         <ItineraryView
           itinerary={current}
           onBack={() => setViewingItinerary(null)}
@@ -93,7 +91,6 @@ export default function App() {
 
   return (
     <div>
-      <Header itineraryCount={itineraries.length} activeItinerary={activeItinerary} onShowList={() => setShowList(true)} onNewItinerary={() => setShowCreateModal(true)} onExplora={() => setShowExplora(true)} />
       <main className={styles.main}>
         <div className={styles.hero}>
           <h1 className={styles.heroTitle}>Descubre lo <em>auténtico</em><br />donde estás</h1>
@@ -137,7 +134,6 @@ export default function App() {
       {showCreateModal && <CreateItineraryModal onClose={() => setShowCreateModal(false)} onCreate={handleCreate} onAuto={() => { setShowCreateModal(false); setShowAutoWizard(true) }} />}
       {showAutoWizard && <AutoItineraryWizard onClose={() => setShowAutoWizard(false)} onGenerate={handleAutoGenerate} generating={generating} />}
       {showList && <ItineraryList itineraries={itineraries} onSelect={handleSelectItinerary} onNew={() => { setShowList(false); setShowCreateModal(true) }} onClose={() => setShowList(false)} onStatusChange={updateStatus} />}
-      {showExplora && <ExploraMexico onClose={() => setShowExplora(false)} />}
       {addingPlace && itineraries.length > 0 && (
         <AddToDayModal
           place={addingPlace} itineraries={itineraries} activeItinerary={activeItinerary}
