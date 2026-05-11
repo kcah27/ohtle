@@ -241,6 +241,7 @@ window.initMap = function() {
       }, (place, status2) => {
         document.getElementById('detail-loading').style.display = 'none'
         if (status2 !== google.maps.places.PlacesServiceStatus.OK || !place) return
+        console.log('PLACE DETAILS', { rating: place.rating, reviews: place.reviews?.length, hours: place.opening_hours, phone: place.formatted_phone_number })
 
       // Photos
       if (place.photos?.length) {
