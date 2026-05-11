@@ -94,15 +94,19 @@ export function useItinerary() {
           const p = [...day.places]
           ;[moved] = p.splice(fromIdx, 1)
           if (fromDayId === toDayId) {
-            const insertAt = toIdx
-            p.splice(insertAt, 0, moved)
+            // Find target index AFTER splice so position is correct
+            const insertAt = targetPlaceId
+              ? p.findIndex(x => x.place_id === targetPlaceId)
+              : p.length
+            const finalIdx = insertAt === -1 ? p.length : insertAt
+            p.splice(finalIdx, 0, moved)
             // Update separatorIdx if place crossed the separator
             let newSepIdx = day.separatorIdx
             if (newSepIdx !== undefined) {
-              if (fromIdx < newSepIdx && insertAt >= newSepIdx - 1) newSepIdx-- // moved from above to below sep
-              else if (fromIdx >= newSepIdx && insertAt < newSepIdx) newSepIdx++ // moved from below to above sep
+              if (fromIdx < newSepIdx && finalIdx >= newSepIdx - 1) newSepIdx--
+              else if (fromIdx >= newSepIdx && finalIdx < newSepIdx) newSepIdx++
             }
-            console.log('SPLICE FRESH', { before: fromDay.places.map(p=>p.name?.slice(0,8)), after: p.map(p=>p.name?.slice(0,8)), fromIdx, insertAt, newSepIdx })
+            console.log('SPLICE FRESH', { before: fromDay.places.map(p=>p.name?.slice(0,8)), after: p.map(p=>p.name?.slice(0,8)), fromIdx, finalIdx })
             return { ...day, places: p, separatorIdx: newSepIdx }
           }
           return { ...day, places: p }
