@@ -428,11 +428,14 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
           const cityA = parts[0]?.trim()
           const cityB = parts[1]?.trim()
           const sepIdx = day.separatorIdx !== undefined ? day.separatorIdx : Math.ceil(mergedItems.filter(i=>i.type==='place').length / 2)
+          const eventsAll = day.events || []
+          const evtSepIdx = day.eventSeparatorIdx !== undefined ? day.eventSeparatorIdx : eventsAll.length
 
           // For transition days, split into two sub-sections
           const placesA = isTransition ? day.places.slice(0, sepIdx) : []
           const placesB = isTransition ? day.places.slice(sepIdx) : []
-          const eventsAll = day.events || []
+          const eventsA = isTransition ? eventsAll.slice(0, evtSepIdx) : eventsAll
+          const eventsB = isTransition ? eventsAll.slice(evtSepIdx) : []
 
           return (
             <div key={day.id} className={styles.daySection}>
@@ -454,10 +457,10 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                   <div className={`${styles.subSection} ${dropTarget?.dayId===`${day.id}__A`&&dropTarget?.idx===9999?styles.dayDropZone:''}`}
                     data-day-zone={`${day.id}__A`}>
                     <div className={styles.subSectionPin}>📍 {cityA}</div>
-                    {placesA.length === 0 && eventsAll.length === 0
+                    {placesA.length === 0 && eventsA.length === 0
                       ? <div className={styles.emptyDay}>Sin actividades aún</div>
                       : <div className={styles.treeList}>
-                          {eventsAll.map((event, i) => (
+                          {eventsA.map((event, i) => (
                             <EventRow key={event.id} event={event} listIdx={i} dayId={`${day.id}__A`} itineraryId={itinerary.id}
                               onRemove={(iId, dId, eId) => onRemoveEvent(iId, day.id, eId)}
                               onEdit={e=>handleEditEvent(e, day.id)}
@@ -480,9 +483,15 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                   <div className={`${styles.subSection} ${styles.subSectionB} ${dropTarget?.dayId===`${day.id}__B`&&dropTarget?.idx===9999?styles.dayDropZone:''}`}
                     data-day-zone={`${day.id}__B`}>
                     <div className={styles.subSectionPin}>📍 {cityB}</div>
-                    {placesB.length === 0
+                    {placesB.length === 0 && eventsB.length === 0
                       ? <div className={styles.emptyDay}>Sin actividades aún</div>
                       : <div className={styles.treeList}>
+                          {eventsB.map((event, i) => (
+                            <EventRow key={event.id} event={event} listIdx={evtSepIdx+i} dayId={`${day.id}__B`} itineraryId={itinerary.id}
+                              onRemove={(iId, dId, eId) => onRemoveEvent(iId, day.id, eId)}
+                              onEdit={e=>handleEditEvent(e, day.id)}
+                              onPointerDown={onPointerDown} dropTarget={dropTarget} isLast={false} />
+                          ))}
                           {placesB.map((place, i) => {
                             const listIdx = sepIdx + i
                             const isLast = i === placesB.length - 1

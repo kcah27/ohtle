@@ -147,11 +147,10 @@ export function useItinerary() {
     })
   }, [])
 
-  const moveEvent = useCallback((itineraryId, fromDayId, fromEventId, toDayId, toListIdx, targetEventId) => {
-    const parseId = id => { const p = id.split('__'); return { realId: p[0] } }
-    const { realId: fromRealId } = parseId(fromDayId)
-    const { realId: toRealId } = parseId(toDayId)
-    console.log('MOVE EVENT', { fromRealId, toRealId, fromEventId, targetEventId, toListIdx, same: fromRealId===toRealId })
+  const moveEvent = useCallback((itineraryId, fromDayId, fromEventId, toDayId, toListIdx, targetPlaceId, targetEventId) => {
+    const parseId = id => { const p = id.split('__'); return { realId: p[0], section: p[1]||null } }
+    const { realId: fromRealId, section: fromSection } = parseId(fromDayId)
+    const { realId: toRealId, section: toSection } = parseId(toDayId)
     setItineraries(current => {
       const updated = current.map(itin => {
         if (itin.id !== itineraryId) return itin
@@ -163,28 +162,31 @@ export function useItinerary() {
           if (idx === -1) return day
           ;[movedEvent] = events.splice(idx, 1)
           if (fromRealId === toRealId) {
+            const evtSepIdx = day.eventSeparatorIdx !== undefined ? day.eventSeparatorIdx : events.length + 1
             let insertAt
             if (targetEventId) {
               const t = events.findIndex(e => e.id === targetEventId)
               insertAt = t === -1 ? events.length : t
+            } else if (toSection === 'B') {
+              insertAt = fromSection === 'A' ? Math.max(0, evtSepIdx - 1) : events.length
+            } else if (toSection === 'A') {
+              insertAt = 0
             } else {
               insertAt = toListIdx === 9999 ? events.length : Math.min(toListIdx, events.length)
             }
             events.splice(insertAt, 0, movedEvent)
+            // Update eventSeparatorIdx
+            let newEvtSepIdx = evtSepIdx
+            if (toSection === 'B' && fromSection === 'A') newEvtSepIdx = Math.max(0, evtSepIdx - 1)
+            else if (toSection === 'A' && fromSection === 'B') newEvtSepIdx = evtSepIdx + 1
+            return { ...day, events, eventSeparatorIdx: newEvtSepIdx }
           }
           return { ...day, events }
         }).map(day => {
           if (day.id !== toRealId || fromRealId === toRealId || !movedEvent) return day
           const events = [...(day.events||[])]
           if (!events.some(e => e.id === movedEvent.id)) {
-            let insertAt
-            if (targetEventId) {
-              const t = events.findIndex(e => e.id === targetEventId)
-              insertAt = t === -1 ? events.length : t
-            } else {
-              insertAt = toListIdx === 9999 ? events.length : Math.min(toListIdx, events.length)
-            }
-            events.splice(insertAt, 0, movedEvent)
+            events.splice(toListIdx === 9999 ? events.length : Math.min(toListIdx, events.length), 0, movedEvent)
           }
           return { ...day, events }
         })
