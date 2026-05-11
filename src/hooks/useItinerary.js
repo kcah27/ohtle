@@ -96,7 +96,9 @@ export function useItinerary() {
           if (fromDayId === toDayId) {
             let finalIdx
             if (!targetPlaceId) {
-              finalIdx = p.length
+              finalIdx = day.separatorIdx !== undefined
+                ? (fromIdx < day.separatorIdx ? day.separatorIdx - 1 : day.separatorIdx)
+                : p.length
             } else {
               const targetAfterSplice = p.findIndex(x => x.place_id === targetPlaceId)
               finalIdx = targetAfterSplice === -1 ? p.length :
