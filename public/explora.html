@@ -227,21 +227,11 @@ window.initMap = function() {
     document.getElementById('map').classList.add('panel-open')
 
     // Use our own API to get place details
-    fetch(`/api/places?query=${encodeURIComponent(pueblo.nombre + ' ' + pueblo.estado + ' México')}&types=tourist_attraction`)
+    fetch(`/api/place-search?query=${encodeURIComponent(pueblo.nombre + ' Pueblo Mágico ' + pueblo.estado + ' México')}`)
       .then(r => r.json())
       .then(data => {
         const result = data.results?.[0]
         if (!result) { document.getElementById('detail-loading').style.display = 'none'; return }
-        
-        // Show first photo immediately
-        if (result.photoRef) {
-          fetch(`/api/maps-key`).then(r=>r.json()).then(({key}) => {
-            currentPhotos = [`https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${result.photoRef}&key=${key}`]
-            showPhoto(0)
-          })
-        }
-
-        // Get full details
         return fetch(`/api/place-details?place_id=${result.place_id}`)
       })
       .then(r => r?.json())
