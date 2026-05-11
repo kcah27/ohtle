@@ -276,7 +276,7 @@ window.initMap = function() {
           document.getElementById('detail-reviews').innerHTML = `<div class="detail-section">Reseñas destacadas</div>${place.reviews.slice(0,3).map(r=>`
             <div class="review-card">
               <div class="review-header">
-                <img class="review-avatar" src="${r.profile_photo_url||''}" onerror="this.style.display='none'" />
+                <img class="review-avatar" src="${r.profile_photo_url||''}" onerror="this.style.display=&quot;none&quot;" />
                 <div><div class="review-author">${r.author_name}</div><div class="review-stars">${'★'.repeat(r.rating)}</div></div>
               </div>
               <div class="review-text">${(r.text||'').slice(0,200)}${r.text?.length>200?'...':''}</div>
