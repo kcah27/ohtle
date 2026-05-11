@@ -148,17 +148,20 @@ export function useItinerary() {
   }, [])
 
   const moveEvent = useCallback((itineraryId, fromDayId, fromEventId, toDayId, toIdx) => {
+    const parseId = id => { const p = id.split('__'); return { realId: p[0] } }
+    const { realId: fromRealId } = parseId(fromDayId)
+    const { realId: toRealId } = parseId(toDayId)
     updateAndSave(itineraries, itineraryId, itin => {
       let movedEvent = null
       const days = itin.days.map(day => {
-        if (day.id !== fromDayId) return day
+        if (day.id !== fromRealId) return day
         const events = [...(day.events||[])]
         const idx = events.findIndex(e => e.id === fromEventId)
         if (idx === -1) return day
         ;[movedEvent] = events.splice(idx, 1)
         return { ...day, events }
       }).map(day => {
-        if (day.id !== toDayId || !movedEvent) return day
+        if (day.id !== toRealId || !movedEvent) return day
         const events = [...(day.events||[])]
         if (!events.some(e => e.id === movedEvent.id)) {
           events.splice(toIdx === 9999 ? events.length : toIdx, 0, movedEvent)
