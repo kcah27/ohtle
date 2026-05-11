@@ -69,55 +69,67 @@ export function useItinerary() {
     setItineraries(current => {
       const updated = current.map(itin => {
         if (itin.id !== itineraryId) return itin
-        let moved = null
-        // Find fromIdx from CURRENT state
-        const fromDay = itin.days.find(d => d.id === fromDayId)
+
+        // Parse virtual IDs (dayId__A or dayId__B)
+        const parseId = id => { const p = id.split('__'); return { realId: p[0], section: p[1]||null } }
+        const { realId: fromRealId } = parseId(fromDayId)
+        const { realId: toRealId, section: toSection } = parseId(toDayId)
+        const sameDayReal = fromRealId === toRealId
+
+        const fromDay = itin.days.find(d => d.id === fromRealId)
         if (!fromDay) return itin
         const fromIdx = fromDay.places.findIndex(p => p.place_id === placeId)
         if (fromIdx === -1) return itin
 
-        // Find toIdx from CURRENT state
-        const toDay = itin.days.find(d => d.id === toDayId)
+        const toDay = itin.days.find(d => d.id === toRealId)
         if (!toDay) return itin
+
+        // Find toIdx
         let toIdx
-        if (!targetPlaceId) {
-          toIdx = toDay.places.length
-        } else {
+        if (targetPlaceId) {
           toIdx = toDay.places.findIndex(p => p.place_id === targetPlaceId)
           if (toIdx === -1) toIdx = toDay.places.length
+        } else if (toSection === 'A') {
+          toIdx = 0
+        } else if (toSection === 'B') {
+          toIdx = toDay.separatorIdx !== undefined ? toDay.separatorIdx : Math.ceil(toDay.places.length / 2)
+        } else {
+          toIdx = toDay.places.length
         }
 
-        console.log('MOVE FRESH', { fromIdx, toIdx, placeId: placeId?.slice(-6), targetPlaceId: targetPlaceId?.slice(-6), before: fromDay.places.map(p=>p.name?.slice(0,8)) })
-
+        let moved = null
         const days = itin.days.map(day => {
-          if (day.id !== fromDayId) return day
+          if (day.id !== fromRealId) return day
           const p = day.places.map(x => ({...x}))
           ;[moved] = p.splice(fromIdx, 1)
-          if (fromDayId === toDayId) {
+
+          if (sameDayReal) {
             let finalIdx
-            if (!targetPlaceId) {
-              finalIdx = day.separatorIdx !== undefined
-                ? (fromIdx < day.separatorIdx ? day.separatorIdx - 1 : day.separatorIdx)
-                : p.length
-            } else {
+            if (targetPlaceId) {
               const targetAfterSplice = p.findIndex(x => x.place_id === targetPlaceId)
               finalIdx = targetAfterSplice === -1 ? p.length :
                          toIdx > fromIdx ? targetAfterSplice + 1 : targetAfterSplice
+            } else if (toSection === 'A') {
+              finalIdx = 0
+            } else if (toSection === 'B') {
+              const sepIdx = day.separatorIdx !== undefined ? day.separatorIdx : Math.ceil(p.length / 2)
+              finalIdx = fromIdx < sepIdx ? sepIdx - 1 : sepIdx
+            } else {
+              finalIdx = p.length
             }
             p.splice(finalIdx, 0, moved)
 
-            // Update separatorIdx if place crossed it
+            // Update separatorIdx if crossing sections
             let newSepIdx = day.separatorIdx
             if (newSepIdx !== undefined) {
               if (fromIdx < newSepIdx && finalIdx >= newSepIdx) newSepIdx--
               else if (fromIdx >= newSepIdx && finalIdx < newSepIdx) newSepIdx++
             }
-
             return { ...day, places: p, separatorIdx: newSepIdx }
           }
           return { ...day, places: p }
         }).map(day => {
-          if (day.id !== toDayId || fromDayId === toDayId) return day
+          if (day.id !== toRealId || sameDayReal) return day
           const p = day.places.map(x => ({...x}))
           if (!p.some(x => x.place_id === moved?.place_id)) {
             p.splice(toIdx, 0, moved)

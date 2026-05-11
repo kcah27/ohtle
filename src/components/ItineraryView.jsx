@@ -423,8 +423,19 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
           if (day.places.length > 0) console.log('RENDER DAY', day.id.slice(-4), day.places.map(p=>p.name?.slice(0,8)))
           const isDropZone = dropTarget?.dayId===day.id && dropTarget?.idx===9999
 
+          const isTransition = day.cityLabel && day.cityLabel.includes('→')
+          const parts = isTransition ? day.cityLabel.split('→') : []
+          const cityA = parts[0]?.trim()
+          const cityB = parts[1]?.trim()
+          const sepIdx = day.separatorIdx !== undefined ? day.separatorIdx : Math.ceil(mergedItems.filter(i=>i.type==='place').length / 2)
+
+          // For transition days, split into two sub-sections
+          const placesA = isTransition ? day.places.slice(0, sepIdx) : []
+          const placesB = isTransition ? day.places.slice(sepIdx) : []
+          const eventsAll = day.events || []
+
           return (
-            <div key={day.id} className={`${styles.daySection} ${isDropZone?styles.dayDropZone:''}`} data-day-zone={day.id}>
+            <div key={day.id} className={styles.daySection}>
               <div className={styles.dayHeader}>
                 <div className={styles.dayHeaderLeft}>
                   <span className={styles.dayNum}>DÍA {day.dayNumber}</span>
@@ -437,17 +448,53 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                 </div>
               </div>
 
+              {isTransition ? (
+                <div className={styles.subSections}>
+                  {/* Sub-section A */}
+                  <div className={`${styles.subSection} ${dropTarget?.dayId===`${day.id}__A`&&dropTarget?.idx===9999?styles.dayDropZone:''}`}
+                    data-day-zone={`${day.id}__A`}>
+                    <div className={styles.subSectionPin}>📍 {cityA}</div>
+                    {placesA.length === 0
+                      ? <div className={styles.emptyDay}>Sin actividades aún</div>
+                      : <div className={styles.treeList}>
+                          {placesA.map((place, i) => {
+                            const listIdx = i
+                            const isLast = i === placesA.length - 1
+                            return (
+                              <PlaceTreeItem key={place.place_id} place={place} listIdx={listIdx} dayId={`${day.id}__A`} itineraryId={itinerary.id}
+                                onRemove={onRemovePlace} onPointerDown={onPointerDown}
+                                dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d)}} />
+                            )
+                          })}
+                        </div>
+                    }
+                  </div>
+
+                  {/* Sub-section B */}
+                  <div className={`${styles.subSection} ${styles.subSectionB} ${dropTarget?.dayId===`${day.id}__B`&&dropTarget?.idx===9999?styles.dayDropZone:''}`}
+                    data-day-zone={`${day.id}__B`}>
+                    <div className={styles.subSectionPin}>📍 {cityB}</div>
+                    {placesB.length === 0
+                      ? <div className={styles.emptyDay}>Sin actividades aún</div>
+                      : <div className={styles.treeList}>
+                          {placesB.map((place, i) => {
+                            const listIdx = sepIdx + i
+                            const isLast = i === placesB.length - 1
+                            return (
+                              <PlaceTreeItem key={place.place_id} place={place} listIdx={listIdx} dayId={`${day.id}__B`} itineraryId={itinerary.id}
+                                onRemove={onRemovePlace} onPointerDown={onPointerDown}
+                                dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d)}} />
+                            )
+                          })}
+                        </div>
+                    }
+                  </div>
+                </div>
+              ) : (
+              <>
               {mergedItems.length===0
-                ? <div className={styles.emptyDay}>Sin actividades aún</div>
-                : <div className={styles.treeList}>
-                    {/* First city pin */}
-                    {day.cityLabel && day.cityLabel.includes('→') && (
-                      <div className={styles.cityTransition}>
-                        <div className={styles.cityTransitionLine} />
-                        <div className={styles.cityTransitionBadge}>📍 {day.cityLabel.split('→')[0].trim()}</div>
-                        <div className={styles.cityTransitionLine} />
-                      </div>
-                    )}
+                ? <div className={styles.emptyDay} data-day-zone={day.id}>Sin actividades aún</div>
+                : <div className={styles.treeList} data-day-zone={day.id}>
                     {mergedItems.map((item, listIdx) => {
                       const isLast = listIdx === mergedItems.length-1
                       const nextItem = mergedItems[listIdx+1]
@@ -487,6 +534,8 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                     <DaySummary items={mergedItems} />
                   </div>
               }
+              </>
+              )}
             </div>
           )
         })}
