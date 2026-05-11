@@ -458,10 +458,9 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
 
                       if (item.type === 'separator') {
                         return (
-                          <div key={`sep-${listIdx}`}>
-                            {/* Invisible drop zone before separator */}
-                            <div data-place-row data-day-id={day.id} data-idx={listIdx}
-                              style={{height:'12px', cursor:'default'}} />
+                          <div key={`sep-${listIdx}`}
+                            data-place-row data-day-id={day.id} data-idx={listIdx}
+                            style={{cursor:'default'}}>
                             <div className={`${styles.cityTransition} ${dropTarget?.dayId===day.id&&dropTarget?.idx===listIdx?styles.cityTransitionDrop:''}`}>
                               <div className={styles.cityTransitionLine} />
                               <div className={styles.cityTransitionBadge}>📍 {item.cityB}</div>
