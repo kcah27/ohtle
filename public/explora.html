@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Explora México — Pueblos Mágicos</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #F5F0E8; height: 100vh; display: flex; flex-direction: column; }
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
+
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; background: #FDFAF5; border-bottom: 1px solid #E8E0D4; flex-shrink: 0; }
+  .header-left { display: flex; align-items: center; gap: 0.75rem; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #1A1208; }
+  .logo span { color: #C4834A; }
+  .subtitle { font-size: 0.8rem; color: #8B6B4A; }
+  .badge { background: rgba(196,131,74,0.12); color: #C4834A; font-size: 0.75rem; font-weight: 500; padding: 0.25rem 0.75rem; border-radius: 20px; border: 1px solid rgba(196,131,74,0.3); }
+
+  #map { flex: 1; width: 100%; }
+
+  .panel { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #FDFAF5; border: 1px solid #E8E0D4; border-radius: 16px; padding: 1.25rem 1.5rem; min-width: 280px; max-width: 340px; box-shadow: 0 8px 32px rgba(26,18,8,0.15); display: none; z-index: 10; }
+  .panel.visible { display: block; }
+  .panel-close { position: absolute; top: 0.75rem; right: 0.75rem; background: none; border: none; color: #8B6B4A; cursor: pointer; font-size: 1rem; }
+  .panel-emoji { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  .panel-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #1A1208; margin-bottom: 0.2rem; }
+  .panel-estado { font-size: 0.82rem; color: #8B6B4A; margin-bottom: 0.75rem; }
+  .panel-badge { display: inline-block; font-size: 0.72rem; font-weight: 500; color: #C4834A; background: rgba(196,131,74,0.1); padding: 0.2rem 0.75rem; border-radius: 20px; margin-bottom: 1rem; }
+  .panel-btn { width: 100%; padding: 0.7rem; background: #C4834A; color: white; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .panel-btn:hover { background: #8B6B4A; }
+
+  .count-badge { position: fixed; top: 80px; right: 1rem; background: #FDFAF5; border: 1px solid #E8E0D4; border-radius: 20px; padding: 0.4rem 0.9rem; font-size: 0.78rem; color: #8B6B4A; z-index: 5; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">Oh<span>tle</span></div>
+    <div class="subtitle">Explora México</div>
+  </div>
+  <div class="badge" id="counter">Cargando...</div>
+</div>
+
+<div id="map"></div>
+<div class="count-badge" id="count2"></div>
+
+<div class="panel" id="panel">
+  <button class="panel-close" onclick="closePanel()">✕</button>
+  <div class="panel-emoji">📍</div>
+  <div class="panel-name" id="panel-name"></div>
+  <div class="panel-estado" id="panel-estado"></div>
+  <div class="panel-badge">✨ Pueblo Mágico</div>
+  <button class="panel-btn">+ Agregar a itinerario</button>
+</div>
+
+<script>
+const PUEBLOS = [
+  { nombre: "Bacalar", estado: "Quintana Roo", lat: 18.6781, lng: -88.3963 },
+  { nombre: "Izamal", estado: "Yucatán", lat: 20.9301, lng: -89.0152 },
+  { nombre: "Valladolid", estado: "Yucatán", lat: 20.6897, lng: -88.2022 },
+  { nombre: "Taxco", estado: "Guerrero", lat: 18.5561, lng: -99.6050 },
+  { nombre: "San Cristóbal de las Casas", estado: "Chiapas", lat: 16.7370, lng: -92.6376 },
+  { nombre: "Palenque", estado: "Chiapas", lat: 17.5101, lng: -91.9824 },
+  { nombre: "Comitán de Domínguez", estado: "Chiapas", lat: 16.2540, lng: -92.1334 },
+  { nombre: "Chiapa de Corzo", estado: "Chiapas", lat: 16.7085, lng: -93.0158 },
+  { nombre: "Tapijulapa", estado: "Tabasco", lat: 17.4667, lng: -92.7667 },
+  { nombre: "Tepoztlán", estado: "Morelos", lat: 18.9849, lng: -99.0968 },
+  { nombre: "Malinalco", estado: "Estado de México", lat: 18.9435, lng: -99.4962 },
+  { nombre: "Valle de Bravo", estado: "Estado de México", lat: 19.1938, lng: -100.1294 },
+  { nombre: "Metepec", estado: "Estado de México", lat: 19.2567, lng: -99.6044 },
+  { nombre: "El Oro", estado: "Estado de México", lat: 19.8014, lng: -100.1314 },
+  { nombre: "Teotihuacán", estado: "Estado de México", lat: 19.6925, lng: -98.8432 },
+  { nombre: "Ixtapan de la Sal", estado: "Estado de México", lat: 18.8356, lng: -99.6836 },
+  { nombre: "Real del Monte", estado: "Hidalgo", lat: 20.1259, lng: -98.6587 },
+  { nombre: "Huasca de Ocampo", estado: "Hidalgo", lat: 20.2008, lng: -98.5768 },
+  { nombre: "Mineral del Chico", estado: "Hidalgo", lat: 20.2069, lng: -98.7269 },
+  { nombre: "Zimapán", estado: "Hidalgo", lat: 20.7372, lng: -99.3681 },
+  { nombre: "Huichapan", estado: "Hidalgo", lat: 20.3769, lng: -99.6497 },
+  { nombre: "Cuetzalan del Progreso", estado: "Puebla", lat: 20.0308, lng: -97.5233 },
+  { nombre: "Cholula", estado: "Puebla", lat: 19.0634, lng: -98.3034 },
+  { nombre: "Zacatlán", estado: "Puebla", lat: 19.9289, lng: -97.9617 },
+  { nombre: "Atlixco", estado: "Puebla", lat: 18.9072, lng: -98.4381 },
+  { nombre: "Chignahuapan", estado: "Puebla", lat: 19.8342, lng: -98.0250 },
+  { nombre: "Xico", estado: "Veracruz", lat: 19.4153, lng: -96.9800 },
+  { nombre: "Papantla", estado: "Veracruz", lat: 20.4481, lng: -97.3211 },
+  { nombre: "Tlacotalpan", estado: "Veracruz", lat: 18.6119, lng: -95.6567 },
+  { nombre: "Coatepec", estado: "Veracruz", lat: 19.4500, lng: -96.9667 },
+  { nombre: "Xilitla", estado: "San Luis Potosí", lat: 21.3814, lng: -98.9950 },
+  { nombre: "Real de Catorce", estado: "San Luis Potosí", lat: 23.6722, lng: -100.5297 },
+  { nombre: "Aquismón", estado: "San Luis Potosí", lat: 21.6358, lng: -99.0033 },
+  { nombre: "Dolores Hidalgo", estado: "Guanajuato", lat: 21.1517, lng: -100.9303 },
+  { nombre: "Mineral de Pozos", estado: "Guanajuato", lat: 21.2372, lng: -100.4953 },
+  { nombre: "Yuriria", estado: "Guanajuato", lat: 20.1942, lng: -101.1442 },
+  { nombre: "Salvatierra", estado: "Guanajuato", lat: 20.2175, lng: -100.8789 },
+  { nombre: "Jerez", estado: "Zacatecas", lat: 22.6489, lng: -102.9997 },
+  { nombre: "Pinos", estado: "Zacatecas", lat: 22.2844, lng: -101.5769 },
+  { nombre: "Nochistlán de Mejía", estado: "Zacatecas", lat: 21.3669, lng: -102.8503 },
+  { nombre: "Calvillo", estado: "Aguascalientes", lat: 21.8472, lng: -102.7183 },
+  { nombre: "Lagos de Moreno", estado: "Jalisco", lat: 21.3572, lng: -101.9278 },
+  { nombre: "Tapalpa", estado: "Jalisco", lat: 19.9475, lng: -103.7578 },
+  { nombre: "Mazamitla", estado: "Jalisco", lat: 19.9100, lng: -103.0200 },
+  { nombre: "Tequila", estado: "Jalisco", lat: 20.8783, lng: -103.8356 },
+  { nombre: "Talpa de Allende", estado: "Jalisco", lat: 20.3844, lng: -104.8286 },
+  { nombre: "San Sebastián del Oeste", estado: "Jalisco", lat: 20.7894, lng: -104.8761 },
+  { nombre: "Mascota", estado: "Jalisco", lat: 20.5281, lng: -104.7789 },
+  { nombre: "Pátzcuaro", estado: "Michoacán", lat: 19.5139, lng: -101.6097 },
+  { nombre: "Tlalpujahua", estado: "Michoacán", lat: 19.8094, lng: -100.1742 },
+  { nombre: "Santa Clara del Cobre", estado: "Michoacán", lat: 19.4058, lng: -101.6411 },
+  { nombre: "Angangueo", estado: "Michoacán", lat: 19.6275, lng: -100.2922 },
+  { nombre: "Tzintzuntzan", estado: "Michoacán", lat: 19.6333, lng: -101.5667 },
+  { nombre: "Paracho", estado: "Michoacán", lat: 19.6408, lng: -102.0525 },
+  { nombre: "Quiroga", estado: "Michoacán", lat: 19.6639, lng: -101.5258 },
+  { nombre: "Comala", estado: "Colima", lat: 19.3275, lng: -103.7597 },
+  { nombre: "Álamos", estado: "Sonora", lat: 27.0261, lng: -108.9378 },
+  { nombre: "Magdalena de Kino", estado: "Sonora", lat: 30.6244, lng: -110.9606 },
+  { nombre: "El Fuerte", estado: "Sinaloa", lat: 26.4197, lng: -108.6169 },
+  { nombre: "Cosalá", estado: "Sinaloa", lat: 24.4056, lng: -106.6919 },
+  { nombre: "Mocorito", estado: "Sinaloa", lat: 25.4797, lng: -107.9206 },
+  { nombre: "Creel", estado: "Chihuahua", lat: 27.7469, lng: -107.6381 },
+  { nombre: "Batopilas", estado: "Chihuahua", lat: 27.0203, lng: -107.7358 },
+  { nombre: "Todos Santos", estado: "Baja California Sur", lat: 23.4469, lng: -110.2258 },
+  { nombre: "Loreto", estado: "Baja California Sur", lat: 26.0117, lng: -111.3431 },
+  { nombre: "Tecate", estado: "Baja California", lat: 32.5736, lng: -116.6272 },
+  { nombre: "Bustamante", estado: "Nuevo León", lat: 26.5375, lng: -100.5014 },
+  { nombre: "Santiago", estado: "Nuevo León", lat: 25.4256, lng: -100.1522 },
+  { nombre: "Parras de la Fuente", estado: "Coahuila", lat: 25.4431, lng: -102.1819 },
+  { nombre: "Cuatro Ciénegas", estado: "Coahuila", lat: 26.9886, lng: -102.0672 },
+  { nombre: "Tlaxcala", estado: "Tlaxcala", lat: 19.3139, lng: -98.2400 },
+  { nombre: "Huamantla", estado: "Tlaxcala", lat: 19.3131, lng: -97.9222 },
+  { nombre: "Oaxaca de Juárez", estado: "Oaxaca", lat: 17.0732, lng: -96.7266 },
+  { nombre: "Huautla de Jiménez", estado: "Oaxaca", lat: 18.1333, lng: -96.8500 },
+  { nombre: "Mitla", estado: "Oaxaca", lat: 16.9261, lng: -96.4017 },
+]
+
+function initMap() {
+  const map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: 23.5, lng: -102.5 },
+    zoom: 5,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
+    styles: [
+      { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+    ]
+  })
+
+  document.getElementById('counter').textContent = PUEBLOS.length + ' Pueblos Mágicos'
+
+  PUEBLOS.forEach(p => {
+    const marker = new google.maps.Marker({
+      position: { lat: p.lat, lng: p.lng },
+      map,
+      title: p.nombre,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 10,
+        fillColor: '#C4834A',
+        fillOpacity: 1,
+        strokeColor: 'white',
+        strokeWeight: 2.5,
+      }
+    })
+
+    marker.addListener('click', () => {
+      document.getElementById('panel-name').textContent = p.nombre
+      document.getElementById('panel-estado').textContent = p.estado
+      document.getElementById('panel').classList.add('visible')
+      map.panTo({ lat: p.lat, lng: p.lng })
+    })
+  })
+}
+
+function closePanel() {
+  document.getElementById('panel').classList.remove('visible')
+}
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdmZ9YfVAF7d39RZQjPFHJIRFbIRzHmP4&callback=initMap&language=es" async defer></script>
+
+</body>
+</html>
