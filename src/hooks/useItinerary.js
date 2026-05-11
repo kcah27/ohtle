@@ -75,7 +75,7 @@ export function useItinerary() {
         const { realId: fromRealId } = parseId(fromDayId)
         const { realId: toRealId, section: toSection } = parseId(toDayId)
         const sameDayReal = fromRealId === toRealId
-        console.log('MOVE IDS', { fromDayId, toDayId, fromRealId, toRealId, toSection, sameDayReal })
+        console.log('MOVE IDS', { fromDayId, toDayId, fromRealId, toRealId, toSection, sameDayReal, separatorIdx: fromDay?.separatorIdx })
 
         const fromDay = itin.days.find(d => d.id === fromRealId)
         if (!fromDay) return itin
