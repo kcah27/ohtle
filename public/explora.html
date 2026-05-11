@@ -225,15 +225,22 @@ window.initMap = function() {
     document.getElementById('detail-panel').classList.add('open')
     document.getElementById('map').classList.add('panel-open')
 
-    // Search by name to get place_id
+    // Search by name to get place_id then fetch full details
     placesService.findPlaceFromQuery({
       query: `${pueblo.nombre} ${pueblo.estado} México`,
-      fields: ['place_id', 'photos', 'rating', 'user_ratings_total', 'opening_hours', 'formatted_phone_number', 'website', 'reviews']
+      fields: ['place_id']
     }, (results, status) => {
-      document.getElementById('detail-loading').style.display = 'none'
-      if (status !== google.maps.places.PlacesServiceStatus.OK || !results[0]) return
+      if (status !== google.maps.places.PlacesServiceStatus.OK || !results[0]) {
+        document.getElementById('detail-loading').style.display = 'none'
+        return
+      }
 
-      const place = results[0]
+      placesService.getDetails({
+        placeId: results[0].place_id,
+        fields: ['photos', 'rating', 'user_ratings_total', 'opening_hours', 'formatted_phone_number', 'website', 'reviews']
+      }, (place, status2) => {
+        document.getElementById('detail-loading').style.display = 'none'
+        if (status2 !== google.maps.places.PlacesServiceStatus.OK || !place) return
 
       // Photos
       if (place.photos?.length) {
@@ -293,7 +300,7 @@ window.initMap = function() {
             </div>
           `).join('')}
         `
-      }
+      })
     })
   }
 
