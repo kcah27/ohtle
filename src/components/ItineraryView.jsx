@@ -472,14 +472,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                             return (
                               <PlaceTreeItem key={place.place_id} place={place} listIdx={listIdx} dayId={`${day.id}__A`} itineraryId={itinerary.id}
                                 onRemove={(iId, dId, pId) => onRemovePlace(iId, day.id, pId)} onPointerDown={onPointerDown}
-                                dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d)}} />
-                            )
-                          })}
-                        </div>
-                    }
-                  </div>
-
-                  {/* Sub-section B */}
+                                dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d.split('__')[0])}} />
                   <div className={`${styles.subSection} ${styles.subSectionB} ${dropTarget?.dayId===`${day.id}__B`&&dropTarget?.idx===9999?styles.dayDropZone:''}`}
                     data-day-zone={`${day.id}__B`}>
                     <div className={styles.subSectionPin}>📍 {cityB}</div>
@@ -498,14 +491,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                             return (
                               <PlaceTreeItem key={place.place_id} place={place} listIdx={listIdx} dayId={`${day.id}__B`} itineraryId={itinerary.id}
                                 onRemove={(iId, dId, pId) => onRemovePlace(iId, day.id, pId)} onPointerDown={onPointerDown}
-                                dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d)}} />
-                            )
-                          })}
-                        </div>
-                    }
-                  </div>
-                </div>
-              ) : (
+                                dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d.split('__')[0])}} />
               <>
               {mergedItems.length===0
                 ? <div className={styles.emptyDay} data-day-zone={day.id}>Sin actividades aún</div>
