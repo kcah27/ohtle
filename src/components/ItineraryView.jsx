@@ -453,11 +453,16 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                   <div className={`${styles.subSection} ${dropTarget?.dayId===`${day.id}__A`&&dropTarget?.idx===9999?styles.dayDropZone:''}`}
                     data-day-zone={`${day.id}__A`}>
                     <div className={styles.subSectionPin}>📍 {cityA}</div>
-                    {placesA.length === 0
+                    {placesA.length === 0 && eventsAll.length === 0
                       ? <div className={styles.emptyDay}>Sin actividades aún</div>
                       : <div className={styles.treeList}>
+                          {eventsAll.map((event, i) => (
+                            <EventRow key={event.id} event={event} listIdx={i} dayId={day.id} itineraryId={itinerary.id}
+                              onRemove={onRemoveEvent} onEdit={e=>handleEditEvent(e, day.id)}
+                              onPointerDown={onPointerDown} dropTarget={dropTarget} isLast={false} />
+                          ))}
                           {placesA.map((place, i) => {
-                            const listIdx = i
+                            const listIdx = eventsAll.length + i
                             const isLast = i === placesA.length - 1
                             return (
                               <PlaceTreeItem key={place.place_id} place={place} listIdx={listIdx} dayId={`${day.id}__A`} itineraryId={itinerary.id}
