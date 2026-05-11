@@ -132,16 +132,14 @@ const PUEBLOS = [
   { nombre: "Mitla", estado: "Oaxaca", lat: 16.9261, lng: -96.4017 },
 ]
 
-function initMap() {
+window.initMap = function() {
   const map = new google.maps.Map(document.getElementById('map'), {
     center: { lat: 23.5, lng: -102.5 },
     zoom: 5,
     mapTypeControl: false,
     streetViewControl: false,
     fullscreenControl: false,
-    styles: [
-      { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
-    ]
+    styles: [{ featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }]
   })
 
   document.getElementById('counter').textContent = PUEBLOS.length + ' Pueblos Mágicos'
@@ -149,18 +147,9 @@ function initMap() {
   PUEBLOS.forEach(p => {
     const marker = new google.maps.Marker({
       position: { lat: p.lat, lng: p.lng },
-      map,
-      title: p.nombre,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 10,
-        fillColor: '#C4834A',
-        fillOpacity: 1,
-        strokeColor: 'white',
-        strokeWeight: 2.5,
-      }
+      map, title: p.nombre,
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#C4834A', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2.5 }
     })
-
     marker.addListener('click', () => {
       document.getElementById('panel-name').textContent = p.nombre
       document.getElementById('panel-estado').textContent = p.estado
@@ -170,12 +159,18 @@ function initMap() {
   })
 }
 
-function closePanel() {
-  document.getElementById('panel').classList.remove('visible')
-}
-</script>
+function closePanel() { document.getElementById('panel').classList.remove('visible') }
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdmZ9YfVAF7d39RZQjPFHJIRFbIRzHmP4&callback=initMap&language=es" async defer></script>
+// Fetch API key from server then load Maps
+fetch('/api/maps-key')
+  .then(r => r.json())
+  .then(({ key }) => {
+    const s = document.createElement('script')
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initMap&language=es`
+    s.async = true
+    document.head.appendChild(s)
+  })
+</script>
 
 </body>
 </html>
