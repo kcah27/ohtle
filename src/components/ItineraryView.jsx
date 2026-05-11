@@ -473,6 +473,13 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                               <PlaceTreeItem key={place.place_id} place={place} listIdx={listIdx} dayId={`${day.id}__A`} itineraryId={itinerary.id}
                                 onRemove={(iId, dId, pId) => onRemovePlace(iId, day.id, pId)} onPointerDown={onPointerDown}
                                 dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d.split('__')[0])}} />
+                            )
+                          })}
+                        </div>
+                    }
+                  </div>
+
+                  {/* Sub-section B */}
                   <div className={`${styles.subSection} ${styles.subSectionB} ${dropTarget?.dayId===`${day.id}__B`&&dropTarget?.idx===9999?styles.dayDropZone:''}`}
                     data-day-zone={`${day.id}__B`}>
                     <div className={styles.subSectionPin}>📍 {cityB}</div>
