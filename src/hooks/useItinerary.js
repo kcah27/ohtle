@@ -91,28 +91,20 @@ export function useItinerary() {
 
         const days = itin.days.map(day => {
           if (day.id !== fromDayId) return day
-          const p = [...day.places]
+          const p = day.places.map(x => ({...x})) // new references
           ;[moved] = p.splice(fromIdx, 1)
           if (fromDayId === toDayId) {
-            // Find target index AFTER splice so position is correct
             const insertAt = targetPlaceId
               ? p.findIndex(x => x.place_id === targetPlaceId)
               : p.length
             const finalIdx = insertAt === -1 ? p.length : insertAt
             p.splice(finalIdx, 0, moved)
-            // Update separatorIdx if place crossed the separator
-            let newSepIdx = day.separatorIdx
-            if (newSepIdx !== undefined) {
-              if (fromIdx < newSepIdx && finalIdx >= newSepIdx - 1) newSepIdx--
-              else if (fromIdx >= newSepIdx && finalIdx < newSepIdx) newSepIdx++
-            }
-            console.log('SPLICE FRESH', { before: fromDay.places.map(p=>p.name?.slice(0,8)), after: p.map(p=>p.name?.slice(0,8)), fromIdx, finalIdx })
-            return { ...day, places: p, separatorIdx: newSepIdx }
+            return { ...day, places: p }
           }
           return { ...day, places: p }
         }).map(day => {
           if (day.id !== toDayId || fromDayId === toDayId) return day
-          const p = [...day.places]
+          const p = day.places.map(x => ({...x})) // new references
           if (!p.some(x => x.place_id === moved?.place_id)) {
             p.splice(toIdx, 0, moved)
           }
