@@ -47,9 +47,10 @@ export default function PlaceDetailPanel({ place, dayId, itineraryId, onClose, o
   const hours = details?.opening_hours?.weekday_text || []
   const isOpen = details?.opening_hours?.open_now
 
-  // Photos: use API photos first, fallback to place.photoRef
-  const apiPhotos = details?.photos?.slice(0, 5).map(p => getPhotoUrl(p.photo_reference)) || []
-  const photos = apiPhotos.length > 0 ? apiPhotos : [getPhotoUrl(place.photoRef)].filter(Boolean)
+  // Photos: start with place.photoRef, then add API photos when loaded
+  const mainPhoto = getPhotoUrl(place.photoRef)
+  const apiPhotos = details?.photos?.slice(0, 5).map(p => getPhotoUrl(p.photo_reference)).filter(Boolean) || []
+  const photos = apiPhotos.length > 0 ? apiPhotos : mainPhoto ? [mainPhoto] : []
 
   // Top 3 reviews
   const reviews = details?.reviews?.slice(0, 3) || []
