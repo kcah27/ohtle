@@ -462,7 +462,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                             const isLast = i === placesA.length - 1
                             return (
                               <PlaceTreeItem key={place.place_id} place={place} listIdx={listIdx} dayId={`${day.id}__A`} itineraryId={itinerary.id}
-                                onRemove={onRemovePlace} onPointerDown={onPointerDown}
+                                onRemove={(iId, dId, pId) => onRemovePlace(iId, day.id, pId)} onPointerDown={onPointerDown}
                                 dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d)}} />
                             )
                           })}
@@ -482,7 +482,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                             const isLast = i === placesB.length - 1
                             return (
                               <PlaceTreeItem key={place.place_id} place={place} listIdx={listIdx} dayId={`${day.id}__B`} itineraryId={itinerary.id}
-                                onRemove={onRemovePlace} onPointerDown={onPointerDown}
+                                onRemove={(iId, dId, pId) => onRemovePlace(iId, day.id, pId)} onPointerDown={onPointerDown}
                                 dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d)}} />
                             )
                           })}
