@@ -67,6 +67,7 @@ export default function App() {
 
   if (viewingItinerary) {
     const current = itineraries.find(i => i.id === viewingItinerary.id) || viewingItinerary
+    console.log('APP RENDER', { places: current.days.map(d => d.places.map(p => p.name?.slice(0,8))) })
     return (
       <>
         <Header itineraryCount={itineraries.length} activeItinerary={activeItinerary} onShowList={() => setShowList(true)} onNewItinerary={() => setShowCreateModal(true)} />
