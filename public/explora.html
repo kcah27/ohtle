@@ -16,19 +16,44 @@
   .subtitle { font-size: 0.8rem; color: #8B6B4A; }
   .badge { background: rgba(196,131,74,0.12); color: #C4834A; font-size: 0.75rem; font-weight: 500; padding: 0.25rem 0.75rem; border-radius: 20px; border: 1px solid rgba(196,131,74,0.3); }
 
-  #map { flex: 1; width: 100%; }
+  #map { flex: 1; width: 100%; transition: margin-right 0.3s; }
+  #map.panel-open { margin-right: 360px; }
 
-  .panel { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #FDFAF5; border: 1px solid #E8E0D4; border-radius: 16px; padding: 1.25rem 1.5rem; min-width: 280px; max-width: 340px; box-shadow: 0 8px 32px rgba(26,18,8,0.15); display: none; z-index: 10; }
-  .panel.visible { display: block; }
-  .panel-close { position: absolute; top: 0.75rem; right: 0.75rem; background: none; border: none; color: #8B6B4A; cursor: pointer; font-size: 1rem; }
-  .panel-emoji { font-size: 1.6rem; margin-bottom: 0.25rem; }
-  .panel-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #1A1208; margin-bottom: 0.2rem; }
-  .panel-estado { font-size: 0.82rem; color: #8B6B4A; margin-bottom: 0.75rem; }
-  .panel-badge { display: inline-block; font-size: 0.72rem; font-weight: 500; color: #C4834A; background: rgba(196,131,74,0.1); padding: 0.2rem 0.75rem; border-radius: 20px; margin-bottom: 1rem; }
-  .panel-btn { width: 100%; padding: 0.7rem; background: #C4834A; color: white; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-  .panel-btn:hover { background: #8B6B4A; }
-
-  .count-badge { position: fixed; top: 80px; right: 1rem; background: #FDFAF5; border: 1px solid #E8E0D4; border-radius: 20px; padding: 0.4rem 0.9rem; font-size: 0.78rem; color: #8B6B4A; z-index: 5; }
+  .detail-panel { position: fixed; top: 0; right: -380px; width: 360px; height: 100vh; background: #FDFAF5; border-left: 1px solid #E8E0D4; box-shadow: -4px 0 24px rgba(26,18,8,0.1); z-index: 20; display: flex; flex-direction: column; transition: right 0.3s ease; overflow: hidden; }
+  .detail-panel.open { right: 0; }
+  .detail-close { position: absolute; top: 0.75rem; right: 0.75rem; background: rgba(255,255,255,0.9); border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1rem; cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center; }
+  .detail-photo { width: 100%; height: 200px; object-fit: cover; background: #E8E0D4; flex-shrink: 0; position: relative; }
+  .detail-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .photo-prev { left: 8px; }
+  .photo-next { right: 8px; }
+  .photo-dots { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; }
+  .photo-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; }
+  .photo-dot.active { background: white; }
+  .detail-body { flex: 1; overflow-y: auto; padding: 1.25rem; }
+  .detail-name { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #1A1208; margin-bottom: 0.2rem; }
+  .detail-estado { font-size: 0.82rem; color: #8B6B4A; margin-bottom: 0.75rem; }
+  .detail-badge { display: inline-block; font-size: 0.72rem; font-weight: 500; color: #C4834A; background: rgba(196,131,74,0.1); padding: 0.2rem 0.75rem; border-radius: 20px; margin-bottom: 0.75rem; border: 1px solid rgba(196,131,74,0.2); }
+  .detail-rating { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; font-size: 0.85rem; }
+  .stars { color: #E8A83A; }
+  .rating-num { font-weight: 500; color: #1A1208; }
+  .rating-count { color: #8B6B4A; }
+  .detail-status { font-size: 0.82rem; padding: 0.35rem 0.75rem; border-radius: 20px; margin-bottom: 0.75rem; display: inline-block; }
+  .open-now { background: rgba(61,107,79,0.1); color: #3D6B4F; }
+  .closed-now { background: rgba(192,57,43,0.1); color: #c0392b; }
+  .detail-link { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #C4834A; text-decoration: none; margin-bottom: 0.5rem; }
+  .detail-section { font-size: 0.7rem; font-weight: 600; color: #8B6B4A; text-transform: uppercase; letter-spacing: 0.08em; margin: 1rem 0 0.5rem; }
+  .hour-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: #1A1208; padding: 0.2rem 0; border-bottom: 1px solid #F0EBE3; }
+  .review-card { background: #F5F0E8; border-radius: 10px; padding: 0.75rem; margin-bottom: 0.6rem; }
+  .review-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
+  .review-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: #E8E0D4; }
+  .review-author { font-size: 0.8rem; font-weight: 500; color: #1A1208; }
+  .review-stars { color: #E8A83A; font-size: 0.75rem; }
+  .review-text { font-size: 0.78rem; color: #8B6B4A; line-height: 1.5; }
+  .loading-detail { text-align: center; padding: 2rem; color: #8B6B4A; font-size: 0.85rem; }
+  .detail-footer { padding: 1rem 1.25rem; border-top: 1px solid #E8E0D4; flex-shrink: 0; background: #FDFAF5; }
+  .add-btn { width: 100%; padding: 0.85rem; background: #C4834A; color: white; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .add-btn:hover { background: #8B6B4A; }
 </style>
 </head>
 <body>
@@ -42,15 +67,34 @@
 </div>
 
 <div id="map"></div>
-<div class="count-badge" id="count2"></div>
 
-<div class="panel" id="panel">
-  <button class="panel-close" onclick="closePanel()">✕</button>
-  <div class="panel-emoji">📍</div>
-  <div class="panel-name" id="panel-name"></div>
-  <div class="panel-estado" id="panel-estado"></div>
-  <div class="panel-badge">✨ Pueblo Mágico</div>
-  <button class="panel-btn">+ Agregar a itinerario</button>
+<div class="detail-panel" id="detail-panel">
+  <button class="detail-close" onclick="closePanel()">✕</button>
+  <div class="detail-photo" id="detail-photo-wrap">
+    <img id="detail-photo" src="" alt="" />
+    <button class="photo-nav photo-prev" onclick="prevPhoto()">‹</button>
+    <button class="photo-nav photo-next" onclick="nextPhoto()">›</button>
+    <div class="photo-dots" id="photo-dots"></div>
+  </div>
+  <div class="detail-body">
+    <div class="detail-name" id="detail-name"></div>
+    <div class="detail-estado" id="detail-estado"></div>
+    <div class="detail-badge">✨ Pueblo Mágico</div>
+    <div class="detail-rating" id="detail-rating" style="display:none">
+      <span class="stars" id="detail-stars"></span>
+      <span class="rating-num" id="detail-rating-num"></span>
+      <span class="rating-count" id="detail-rating-count"></span>
+    </div>
+    <div id="detail-status"></div>
+    <div id="detail-phone"></div>
+    <div id="detail-website"></div>
+    <div id="detail-hours"></div>
+    <div id="detail-reviews"></div>
+    <div class="loading-detail" id="detail-loading">Cargando información...</div>
+  </div>
+  <div class="detail-footer">
+    <button class="add-btn" id="add-btn">+ Agregar a itinerario</button>
+  </div>
 </div>
 
 <script>
@@ -144,6 +188,115 @@ window.initMap = function() {
 
   document.getElementById('counter').textContent = PUEBLOS.length + ' Pueblos Mágicos'
 
+  let currentPhotos = []
+  let currentPhotoIdx = 0
+
+  function showPhoto(idx) {
+    currentPhotoIdx = idx
+    document.getElementById('detail-photo').src = currentPhotos[idx] || ''
+    const dots = document.querySelectorAll('.photo-dot')
+    dots.forEach((d,i) => d.classList.toggle('active', i===idx))
+  }
+
+  window.prevPhoto = () => showPhoto((currentPhotoIdx - 1 + currentPhotos.length) % currentPhotos.length)
+  window.nextPhoto = () => showPhoto((currentPhotoIdx + 1) % currentPhotos.length)
+
+  window.closePanel = () => {
+    document.getElementById('detail-panel').classList.remove('open')
+    document.getElementById('map').classList.remove('panel-open')
+  }
+
+  const placesService = new google.maps.places.PlacesService(map)
+
+  function openPanel(pueblo) {
+    document.getElementById('detail-name').textContent = pueblo.nombre
+    document.getElementById('detail-estado').textContent = pueblo.estado
+    document.getElementById('detail-rating').style.display = 'none'
+    document.getElementById('detail-status').innerHTML = ''
+    document.getElementById('detail-phone').innerHTML = ''
+    document.getElementById('detail-website').innerHTML = ''
+    document.getElementById('detail-hours').innerHTML = ''
+    document.getElementById('detail-reviews').innerHTML = ''
+    document.getElementById('detail-loading').style.display = 'block'
+    document.getElementById('photo-dots').innerHTML = ''
+    currentPhotos = []
+    document.getElementById('detail-photo').src = ''
+
+    document.getElementById('detail-panel').classList.add('open')
+    document.getElementById('map').classList.add('panel-open')
+
+    // Search by name to get place_id
+    placesService.findPlaceFromQuery({
+      query: `${pueblo.nombre} ${pueblo.estado} México`,
+      fields: ['place_id', 'photos', 'rating', 'user_ratings_total', 'opening_hours', 'formatted_phone_number', 'website', 'reviews']
+    }, (results, status) => {
+      document.getElementById('detail-loading').style.display = 'none'
+      if (status !== google.maps.places.PlacesServiceStatus.OK || !results[0]) return
+
+      const place = results[0]
+
+      // Photos
+      if (place.photos?.length) {
+        currentPhotos = place.photos.slice(0, 5).map(p => p.getUrl({ maxWidth: 800 }))
+        const dotsEl = document.getElementById('photo-dots')
+        dotsEl.innerHTML = currentPhotos.map((_, i) => `<div class="photo-dot${i===0?' active':''}" onclick="showPhoto(${i})"></div>`).join('')
+        showPhoto(0)
+      }
+
+      // Rating
+      if (place.rating) {
+        document.getElementById('detail-rating').style.display = 'flex'
+        document.getElementById('detail-stars').textContent = '★'.repeat(Math.round(place.rating))
+        document.getElementById('detail-rating-num').textContent = place.rating
+        document.getElementById('detail-rating-count').textContent = `(${(place.user_ratings_total||0).toLocaleString()} reseñas)`
+      }
+
+      // Open status
+      if (place.opening_hours) {
+        const isOpen = place.opening_hours.isOpen?.()
+        document.getElementById('detail-status').innerHTML = `<div class="detail-status ${isOpen?'open-now':'closed-now'}">${isOpen?'✓ Abierto ahora':'✗ Cerrado ahora'}</div>`
+      }
+
+      // Phone
+      if (place.formatted_phone_number) {
+        document.getElementById('detail-phone').innerHTML = `<a class="detail-link" href="tel:${place.formatted_phone_number}">📞 ${place.formatted_phone_number}</a>`
+      }
+
+      // Website
+      if (place.website) {
+        document.getElementById('detail-website').innerHTML = `<a class="detail-link" href="${place.website}" target="_blank">🌐 Sitio web</a>`
+      }
+
+      // Hours
+      const weekdays = place.opening_hours?.weekday_text
+      if (weekdays?.length) {
+        document.getElementById('detail-hours').innerHTML = `
+          <div class="detail-section">Horarios</div>
+          ${weekdays.map(h => `<div class="hour-row"><span>${h.split(':')[0]}</span><span>${h.split(/:(.*)/s)[1]?.trim()}</span></div>`).join('')}
+        `
+      }
+
+      // Reviews
+      if (place.reviews?.length) {
+        document.getElementById('detail-reviews').innerHTML = `
+          <div class="detail-section">Reseñas destacadas</div>
+          ${place.reviews.slice(0,3).map(r => `
+            <div class="review-card">
+              <div class="review-header">
+                <img class="review-avatar" src="${r.profile_photo_url||''}" onerror="this.style.display='none'" />
+                <div>
+                  <div class="review-author">${r.author_name}</div>
+                  <div class="review-stars">${'★'.repeat(r.rating)}</div>
+                </div>
+              </div>
+              <div class="review-text">${(r.text||'').slice(0,200)}${r.text?.length>200?'...':''}</div>
+            </div>
+          `).join('')}
+        `
+      }
+    })
+  }
+
   PUEBLOS.forEach(p => {
     const marker = new google.maps.Marker({
       position: { lat: p.lat, lng: p.lng },
@@ -151,22 +304,18 @@ window.initMap = function() {
       icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#C4834A', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2.5 }
     })
     marker.addListener('click', () => {
-      document.getElementById('panel-name').textContent = p.nombre
-      document.getElementById('panel-estado').textContent = p.estado
-      document.getElementById('panel').classList.add('visible')
       map.panTo({ lat: p.lat, lng: p.lng })
+      openPanel(p)
     })
   })
 }
 
-function closePanel() { document.getElementById('panel').classList.remove('visible') }
-
-// Fetch API key from server then load Maps
+// Fetch API key then load Maps with Places library
 fetch('/api/maps-key')
   .then(r => r.json())
   .then(({ key }) => {
     const s = document.createElement('script')
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initMap&language=es`
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&callback=initMap&language=es`
     s.async = true
     document.head.appendChild(s)
   })
