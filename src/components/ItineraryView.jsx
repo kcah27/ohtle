@@ -276,8 +276,19 @@ function buildMergedItemsStatic(day, allDays) {
     })
   }
 
-  // No separator needed — transition days use sub-cards in render
-  return all.map((item,i) => ({ ...item, listIdx:i }))
+  // If day has transition label, inject separator at saved position or default midpoint
+  const items = all.map((item,i) => ({ ...item, listIdx:i }))
+  if (day.cityLabel && day.cityLabel.includes('→')) {
+    const parts = day.cityLabel.split('→')
+    const cityA = parts[0].trim()
+    const cityB = parts[1].trim()
+    // Use saved separatorIdx if exists, otherwise default to after first half
+    let splitAfter = day.separatorIdx !== undefined ? day.separatorIdx : Math.ceil(items.length / 2) - 1
+    splitAfter = Math.max(-1, Math.min(splitAfter, items.length - 1))
+    items.splice(splitAfter + 1, 0, { type:'separator', cityA, cityB, listIdx: splitAfter + 0.5 })
+    return items.map((item, i) => ({ ...item, listIdx: i }))
+  }
+  return items
 }
 
 export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDelete, onMove, onUpdateDayLabel, onUpdatePlace, onAddEvent, onUpdateEvent, onMoveEvent, onRemoveEvent, onUpdateSeparatorIdx }) {
@@ -451,7 +462,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                             const isLast = i === placesA.length - 1
                             return (
                               <PlaceTreeItem key={place.place_id} place={place} listIdx={listIdx} dayId={`${day.id}__A`} itineraryId={itinerary.id}
-                                onRemove={(iId, dId, pId) => onRemovePlace(iId, day.id, pId)} onPointerDown={onPointerDown}
+                                onRemove={onRemovePlace} onPointerDown={onPointerDown}
                                 dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d)}} />
                             )
                           })}
@@ -471,7 +482,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
                             const isLast = i === placesB.length - 1
                             return (
                               <PlaceTreeItem key={place.place_id} place={place} listIdx={listIdx} dayId={`${day.id}__B`} itineraryId={itinerary.id}
-                                onRemove={(iId, dId, pId) => onRemovePlace(iId, day.id, pId)} onPointerDown={onPointerDown}
+                                onRemove={onRemovePlace} onPointerDown={onPointerDown}
                                 dropTarget={dropTarget} isLast={isLast} onOpenDetail={(p,d)=>{setDetailPlace(p);setDetailDayId(d)}} />
                             )
                           })}

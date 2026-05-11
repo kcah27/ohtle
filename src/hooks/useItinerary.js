@@ -75,7 +75,6 @@ export function useItinerary() {
         const { realId: fromRealId } = parseId(fromDayId)
         const { realId: toRealId, section: toSection } = parseId(toDayId)
         const sameDayReal = fromRealId === toRealId
-        console.log('MOVE IDS', { fromDayId, toDayId, fromRealId, toRealId, toSection, sameDayReal, separatorIdx: fromDay?.separatorIdx })
 
         const fromDay = itin.days.find(d => d.id === fromRealId)
         if (!fromDay) return itin
@@ -106,39 +105,23 @@ export function useItinerary() {
 
           if (sameDayReal) {
             let finalIdx
-            const sepIdx = day.separatorIdx !== undefined ? day.separatorIdx : Math.ceil(day.places.length / 2)
-            if (toSection === 'B') {
-              // Moving to section B — insert at or after separator
-              const afterSplice = fromIdx < sepIdx ? sepIdx - 1 : sepIdx
-              if (targetPlaceId) {
-                const t = p.findIndex(x => x.place_id === targetPlaceId)
-                finalIdx = t === -1 ? afterSplice : (toIdx > fromIdx ? t + 1 : t)
-              } else {
-                finalIdx = afterSplice
-              }
-            } else if (toSection === 'A') {
-              // Moving to section A — insert before separator
-              if (targetPlaceId) {
-                const t = p.findIndex(x => x.place_id === targetPlaceId)
-                finalIdx = t === -1 ? 0 : (toIdx > fromIdx ? t + 1 : t)
-              } else {
-                finalIdx = 0
-              }
-            } else if (targetPlaceId) {
+            if (targetPlaceId) {
               const targetAfterSplice = p.findIndex(x => x.place_id === targetPlaceId)
               finalIdx = targetAfterSplice === -1 ? p.length :
                          toIdx > fromIdx ? targetAfterSplice + 1 : targetAfterSplice
+            } else if (toSection === 'A') {
+              finalIdx = 0
+            } else if (toSection === 'B') {
+              const sepIdx = day.separatorIdx !== undefined ? day.separatorIdx : Math.ceil(p.length / 2)
+              finalIdx = fromIdx < sepIdx ? sepIdx - 1 : sepIdx
             } else {
               finalIdx = p.length
             }
             p.splice(finalIdx, 0, moved)
 
-            // Update separatorIdx based on section crossing
-            let newSepIdx = day.separatorIdx !== undefined ? day.separatorIdx : sepIdx
-            if (toSection === 'B' && fromIdx < newSepIdx) newSepIdx-- // moved from A to B
-            else if (toSection === 'A' && fromIdx >= newSepIdx) newSepIdx++ // moved from B to A
-            else if (!toSection) {
-              // Same section reorder — adjust if crossing separator
+            // Update separatorIdx if crossing sections
+            let newSepIdx = day.separatorIdx
+            if (newSepIdx !== undefined) {
               if (fromIdx < newSepIdx && finalIdx >= newSepIdx) newSepIdx--
               else if (fromIdx >= newSepIdx && finalIdx < newSepIdx) newSepIdx++
             }
