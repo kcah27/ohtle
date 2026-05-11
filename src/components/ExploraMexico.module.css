@@ -1,0 +1,21 @@
+.overlay { position: fixed; inset: 0; z-index: 200; background: var(--sand); display: flex; flex-direction: column; }
+.container { display: flex; flex-direction: column; height: 100%; }
+.header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); background: var(--card-bg); flex-shrink: 0; }
+.headerLeft { display: flex; align-items: center; gap: 0.75rem; }
+.headerIcon { font-size: 1.8rem; }
+.title { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--dark); margin: 0; }
+.subtitle { font-size: 0.8rem; color: var(--light-text); margin: 0; }
+.closeBtn { background: none; border: none; font-size: 1.1rem; color: var(--light-text); cursor: pointer; padding: 0.4rem; }
+.closeBtn:hover { color: var(--dark); }
+.body { flex: 1; position: relative; overflow: hidden; }
+.mapWrap { width: 100%; height: 100%; }
+.loading { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 0.9rem; color: var(--light-text); }
+
+.infoPanel { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem 1.5rem; min-width: 260px; max-width: 320px; box-shadow: 0 8px 32px rgba(26,18,8,0.15); text-align: center; }
+.closeInfo { position: absolute; top: 0.75rem; right: 0.75rem; background: none; border: none; color: var(--light-text); cursor: pointer; font-size: 0.9rem; }
+.infoPin { font-size: 1.8rem; margin-bottom: 0.25rem; }
+.infoName { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--dark); margin: 0 0 0.25rem; }
+.infoEstado { font-size: 0.82rem; color: var(--light-text); margin: 0 0 0.75rem; }
+.infoBadge { display: inline-block; font-size: 0.72rem; font-weight: 500; color: var(--accent); background: rgba(196,131,74,0.12); padding: 0.2rem 0.75rem; border-radius: 20px; margin-bottom: 1rem; }
+.addBtn { width: 100%; padding: 0.7rem; background: var(--accent); color: white; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.addBtn:hover { background: var(--earth); }

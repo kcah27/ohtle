@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from './Header.module.css'
 
-export default function Header({ itineraryCount, activeItinerary, onShowList, onNewItinerary }) {
+export default function Header({ itineraryCount, activeItinerary, onShowList, onNewItinerary, onExplora }) {
   return (
     <header className={styles.header}>
       <div className={styles.logo}>
@@ -17,6 +17,7 @@ export default function Header({ itineraryCount, activeItinerary, onShowList, on
         <button className={styles.listBtn} onClick={onShowList}>
           Mis itinerarios {itineraryCount > 0 && <span className={styles.badge}>{itineraryCount}</span>}
         </button>
+        <button className={styles.exploraBtn} onClick={onExplora}>🗺️ Explora México</button>
         <button className={styles.newBtn} onClick={onNewItinerary}>
           + Nuevo itinerario
         </button>
