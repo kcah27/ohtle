@@ -1,11 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react'
 import styles from './PlaceDetailPanel.module.css'
 
-const DAYS_ES = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
-
-function getLargePhotoUrl(photoRef) {
+function getPhotoUrl(photoRef, maxwidth=800) {
   const k = import.meta.env.VITE_GOOGLE_MAPS_KEY
-  return photoRef && k ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photoRef}&key=${k}` : null
+  return photoRef && k ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxwidth}&photoreference=${photoRef}&key=${k}` : null
+}
+
+function StarRating({ rating }) {
+  return (
+    <span className={styles.starRating}>
+      {[1,2,3,4,5].map(i => (
+        <span key={i} style={{ color: i <= Math.round(rating) ? '#E8A83A' : '#ddd' }}>★</span>
+      ))}
+    </span>
+  )
 }
 
 export default function PlaceDetailPanel({ place, dayId, itineraryId, onClose, onUpdate }) {
@@ -14,15 +22,12 @@ export default function PlaceDetailPanel({ place, dayId, itineraryId, onClose, o
   const [note, setNote] = useState(place.note || '')
   const [time, setTime] = useState(place.time || '')
   const [duration, setDuration] = useState(place.duration || '')
+  const [photoIdx, setPhotoIdx] = useState(0)
   const noteTimeout = useRef(null)
-  const photoUrl = getLargePhotoUrl(place.photoRef)
 
-  // Fetch place details from Google
   useEffect(() => {
     if (!place.place_id) return
     setLoading(true)
-    const k = import.meta.env.VITE_GOOGLE_MAPS_KEY
-    if (!k) { setLoading(false); return }
     fetch(`/api/place-details?place_id=${place.place_id}`)
       .then(r => r.json())
       .then(d => { if (d.result) setDetails(d.result); setLoading(false) })
@@ -39,9 +44,15 @@ export default function PlaceDetailPanel({ place, dayId, itineraryId, onClose, o
   const saveDuration = (val) => { setDuration(val); onUpdate(itineraryId, dayId, place.place_id, { duration: val }) }
 
   const mapsUrl = `https://www.google.com/maps/place/?q=place_id:${place.place_id}`
-
   const hours = details?.opening_hours?.weekday_text || []
   const isOpen = details?.opening_hours?.open_now
+
+  // Photos: use API photos first, fallback to place.photoRef
+  const apiPhotos = details?.photos?.slice(0, 5).map(p => getPhotoUrl(p.photo_reference)) || []
+  const photos = apiPhotos.length > 0 ? apiPhotos : [getPhotoUrl(place.photoRef)].filter(Boolean)
+
+  // Top 3 reviews
+  const reviews = details?.reviews?.slice(0, 3) || []
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -52,26 +63,36 @@ export default function PlaceDetailPanel({ place, dayId, itineraryId, onClose, o
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
 
-        {/* Photo */}
-        {photoUrl && (
-          <div className={styles.photoWrap}>
-            <img src={photoUrl} alt={place.name} className={styles.photo} />
+        {/* Photo carousel */}
+        {photos.length > 0 && (
+          <div className={styles.carouselWrap}>
+            <img src={photos[photoIdx]} alt={place.name} className={styles.photo} />
+            {photos.length > 1 && (
+              <>
+                <button className={`${styles.carouselBtn} ${styles.carouselPrev}`}
+                  onClick={() => setPhotoIdx(i => (i - 1 + photos.length) % photos.length)}>‹</button>
+                <button className={`${styles.carouselBtn} ${styles.carouselNext}`}
+                  onClick={() => setPhotoIdx(i => (i + 1) % photos.length)}>›</button>
+                <div className={styles.carouselDots}>
+                  {photos.map((_, i) => (
+                    <div key={i} className={`${styles.dot} ${i === photoIdx ? styles.dotActive : ''}`}
+                      onClick={() => setPhotoIdx(i)} />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         )}
 
         <div className={styles.body}>
-          {/* Name + category */}
           <div className={styles.nameRow}>
             <div>
               <h2 className={styles.placeName}>{place.name}</h2>
               {place.vicinity && <p className={styles.vicinity}>{details?.formatted_address || place.vicinity}</p>}
             </div>
-            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className={styles.mapsBtn} title="Abrir en Google Maps">
-              🗺
-            </a>
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className={styles.mapsBtn} title="Abrir en Google Maps">🗺</a>
           </div>
 
-          {/* Rating */}
           {(place.rating || details?.rating) && (
             <div className={styles.ratingRow}>
               <span className={styles.stars}>{'★'.repeat(Math.floor(details?.rating || place.rating))}</span>
@@ -81,14 +102,12 @@ export default function PlaceDetailPanel({ place, dayId, itineraryId, onClose, o
             </div>
           )}
 
-          {/* Open status */}
           {details?.opening_hours && (
             <div className={`${styles.openStatus} ${isOpen ? styles.openNow : styles.closedNow}`}>
               {isOpen ? '✓ Abierto ahora' : '✗ Cerrado ahora'}
             </div>
           )}
 
-          {/* Phone + website */}
           {details?.formatted_phone_number && (
             <a href={`tel:${details.formatted_phone_number}`} className={styles.contactLink}>📞 {details.formatted_phone_number}</a>
           )}
@@ -96,7 +115,6 @@ export default function PlaceDetailPanel({ place, dayId, itineraryId, onClose, o
             <a href={details.website} target="_blank" rel="noopener noreferrer" className={styles.contactLink}>🌐 Sitio web</a>
           )}
 
-          {/* Hours */}
           {hours.length > 0 && (
             <div className={styles.hoursSection}>
               <div className={styles.sectionTitle}>Horarios</div>
@@ -109,12 +127,28 @@ export default function PlaceDetailPanel({ place, dayId, itineraryId, onClose, o
             </div>
           )}
 
-          {loading && <div className={styles.loadingHint}>Cargando detalles...</div>}
+          {/* Reviews */}
+          {reviews.length > 0 && (
+            <div className={styles.reviewsSection}>
+              <div className={styles.sectionTitle}>Reseñas destacadas</div>
+              {reviews.map((r, i) => (
+                <div key={i} className={styles.reviewCard}>
+                  <div className={styles.reviewHeader}>
+                    <img src={r.profile_photo_url} alt={r.author_name} className={styles.reviewAvatar} onError={e=>e.target.style.display='none'} />
+                    <div>
+                      <div className={styles.reviewAuthor}>{r.author_name}</div>
+                      <StarRating rating={r.rating} />
+                    </div>
+                  </div>
+                  <p className={styles.reviewText}>{r.text?.slice(0, 200)}{r.text?.length > 200 ? '...' : ''}</p>
+                </div>
+              ))}
+            </div>
+          )}
 
-          {/* Divider */}
+          {loading && <div className={styles.loadingHint}>Cargando detalles...</div>}
           <div className={styles.divider} />
 
-          {/* Time & duration */}
           <div className={styles.sectionTitle}>Horario en tu itinerario</div>
           <div className={styles.timeRow}>
             <div className={styles.timeField}>
@@ -127,15 +161,10 @@ export default function PlaceDetailPanel({ place, dayId, itineraryId, onClose, o
             </div>
           </div>
 
-          {/* Note */}
           <div className={styles.sectionTitle}>Nota personal</div>
-          <textarea
-            className={styles.noteArea}
-            placeholder="ej. Reservar con anticipación, llevar efectivo, llegar temprano para evitar filas..."
-            value={note}
-            onChange={e => saveNote(e.target.value)}
-            rows={4}
-          />
+          <textarea className={styles.noteArea}
+            placeholder="ej. Reservar con anticipación, llevar efectivo..."
+            value={note} onChange={e => saveNote(e.target.value)} rows={3} />
           <div className={styles.noteHint}>Se guarda automáticamente</div>
         </div>
       </div>
