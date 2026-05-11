@@ -267,10 +267,14 @@ function buildMergedItemsStatic(day, allDays) {
       })
     })
   }
-  all.sort((a,b) => {
-    const ta = a.data.time||''; const tb = b.data.time||''
-    if(!ta&&!tb) return 0; if(!ta) return 1; if(!tb) return -1; return ta.localeCompare(tb)
-  })
+  // Sort only if items have times assigned
+  const hasTimes = all.some(i => i.data.time)
+  if (hasTimes) {
+    all.sort((a,b) => {
+      const ta = a.data.time||''; const tb = b.data.time||''
+      if(!ta&&!tb) return 0; if(!ta) return 1; if(!tb) return -1; return ta.localeCompare(tb)
+    })
+  }
 
   // If day has transition label, inject separator at saved position or default midpoint
   const items = all.map((item,i) => ({ ...item, listIdx:i }))
