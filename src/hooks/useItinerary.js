@@ -104,27 +104,31 @@ export function useItinerary() {
           ;[moved] = p.splice(fromIdx, 1)
 
           if (sameDayReal) {
+            const sepIdx = day.separatorIdx !== undefined ? day.separatorIdx : Math.ceil(day.places.length / 2)
             let finalIdx
+
             if (targetPlaceId) {
-              const targetAfterSplice = p.findIndex(x => x.place_id === targetPlaceId)
-              finalIdx = targetAfterSplice === -1 ? p.length :
-                         toIdx > fromIdx ? targetAfterSplice + 1 : targetAfterSplice
+              const t = p.findIndex(x => x.place_id === targetPlaceId)
+              finalIdx = t === -1 ? p.length : (toIdx > fromIdx ? t + 1 : t)
+            } else if (toSection === 'B') {
+              finalIdx = Math.max(fromIdx < sepIdx ? sepIdx - 1 : sepIdx, 0)
             } else if (toSection === 'A') {
               finalIdx = 0
-            } else if (toSection === 'B') {
-              const sepIdx = day.separatorIdx !== undefined ? day.separatorIdx : Math.ceil(p.length / 2)
-              finalIdx = fromIdx < sepIdx ? sepIdx - 1 : sepIdx
             } else {
               finalIdx = p.length
             }
+
             p.splice(finalIdx, 0, moved)
 
-            // Update separatorIdx if crossing sections
-            let newSepIdx = day.separatorIdx
-            if (newSepIdx !== undefined) {
-              if (fromIdx < newSepIdx && finalIdx >= newSepIdx) newSepIdx--
-              else if (fromIdx >= newSepIdx && finalIdx < newSepIdx) newSepIdx++
+            // Update separatorIdx when crossing sections
+            let newSepIdx = sepIdx
+            if (toSection === 'B' && fromIdx < sepIdx) newSepIdx = Math.max(0, sepIdx - 1)
+            else if (toSection === 'A' && fromIdx >= sepIdx) newSepIdx = sepIdx + 1
+            else if (!toSection) {
+              if (fromIdx < sepIdx && finalIdx >= sepIdx) newSepIdx = Math.max(0, sepIdx - 1)
+              else if (fromIdx >= sepIdx && finalIdx < sepIdx) newSepIdx = sepIdx + 1
             }
+
             return { ...day, places: p, separatorIdx: newSepIdx }
           }
           return { ...day, places: p }
