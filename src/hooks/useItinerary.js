@@ -133,9 +133,12 @@ export function useItinerary() {
             }
             p.splice(finalIdx, 0, moved)
 
-            // Update separatorIdx if crossing sections
-            let newSepIdx = day.separatorIdx
-            if (newSepIdx !== undefined) {
+            // Update separatorIdx based on section crossing
+            let newSepIdx = day.separatorIdx !== undefined ? day.separatorIdx : sepIdx
+            if (toSection === 'B' && fromIdx < newSepIdx) newSepIdx-- // moved from A to B
+            else if (toSection === 'A' && fromIdx >= newSepIdx) newSepIdx++ // moved from B to A
+            else if (!toSection) {
+              // Same section reorder — adjust if crossing separator
               if (fromIdx < newSepIdx && finalIdx >= newSepIdx) newSepIdx--
               else if (fromIdx >= newSepIdx && finalIdx < newSepIdx) newSepIdx++
             }
