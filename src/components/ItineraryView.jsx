@@ -420,6 +420,7 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
           if(section.type==='city') return <div key={`city-${sIdx}`} className={styles.cityHeader}>{section.label}</div>
           const { day } = section
           const mergedItems = buildMergedItems(day)
+          if (day.places.length > 0) console.log('RENDER DAY', day.id.slice(-4), day.places.map(p=>p.name?.slice(0,8)))
           const isDropZone = dropTarget?.dayId===day.id && dropTarget?.idx===9999
 
           return (
