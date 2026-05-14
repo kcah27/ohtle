@@ -244,8 +244,8 @@ window.initMap = function() {
         const { key } = await keyRes.json()
 
         if (place.photos?.length) {
-          currentPhotos = place.photos.slice(0,5).map(p =>
-            `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${p.photo_reference}&key=${key}`)
+          currentPhotos = place.photos.slice(0,5).map(photo =>
+            `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${key}`)
           const dotsEl = document.getElementById('photo-dots')
           dotsEl.innerHTML = currentPhotos.map((_,i) => `<div class="photo-dot${i===0?' active':''}" onclick="showPhotoIdx(${i})"></div>`).join('')
           showPhoto(0)
