@@ -92,6 +92,7 @@ export default function App() {
 
   return (
     <div>
+      <Header itineraryCount={itineraries.length} activeItinerary={activeItinerary} onShowList={() => setShowList(true)} onNewItinerary={() => setShowCreateModal(true)} onExplora={() => {}} />
       <main className={styles.main}>
         <div className={styles.hero}>
           <h1 className={styles.heroTitle}>Descubre lo <em>auténtico</em><br />donde estás</h1>
