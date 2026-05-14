@@ -16,7 +16,7 @@ function StarRating({ rating }) {
   )
 }
 
-export default function PlaceDetailPanel({ place, dayId, itineraryId, onClose, onUpdate }) {
+export default function PlaceDetailPanel({ place, dayId, itineraryId, onClose, onUpdate, onAddToAnotherDay }) {
   const [details, setDetails] = useState(null)
   const [loading, setLoading] = useState(false)
   const [note, setNote] = useState(place.note || '')
@@ -26,6 +26,8 @@ export default function PlaceDetailPanel({ place, dayId, itineraryId, onClose, o
   const noteTimeout = useRef(null)
 
   useEffect(() => {
+    setPhotoIdx(0)
+    setDetails(null)
     if (!place.place_id) return
     setLoading(true)
     fetch(`/api/place-details?place_id=${place.place_id}`)
@@ -149,6 +151,12 @@ export default function PlaceDetailPanel({ place, dayId, itineraryId, onClose, o
 
           {loading && <div className={styles.loadingHint}>Cargando detalles...</div>}
           <div className={styles.divider} />
+
+          {onAddToAnotherDay && (
+            <button className={styles.cloneBtn} onClick={() => { onAddToAnotherDay(place); onClose() }}>
+              📋 Agregar a otro día
+            </button>
+          )}
 
           <div className={styles.sectionTitle}>Horario en tu itinerario</div>
           <div className={styles.timeRow}>

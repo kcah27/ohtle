@@ -7,6 +7,7 @@ import AddToDayModal from './components/AddToDayModal'
 import ItineraryList from './components/ItineraryList'
 import ItineraryView from './components/ItineraryView'
 import AutoItineraryWizard from './components/AutoItineraryWizard'
+import ExploraMexico from './components/ExploraMexico'
 import { usePlaces } from './hooks/usePlaces'
 import { useItinerary } from './hooks/useItinerary'
 import { useAutoItinerary } from './hooks/useAutoItinerary'
@@ -22,6 +23,7 @@ export default function App() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showAutoWizard, setShowAutoWizard] = useState(false)
   const [showList, setShowList] = useState(false)
+  const [showExplora, setShowExplora] = useState(false)
   const [addingPlace, setAddingPlace] = useState(null)
   const [viewingItinerary, setViewingItinerary] = useState(null)
 
@@ -82,17 +84,23 @@ export default function App() {
           onUpdateEvent={updateEvent}
           onMoveEvent={moveEvent}
           onRemoveEvent={removeEvent}
+          onAddToAnotherDay={(place) => setAddingPlace(place)}
         />
         {showList && <ItineraryList itineraries={itineraries} onSelect={handleSelectItinerary} onNew={() => { setShowList(false); setShowCreateModal(true) }} onClose={() => setShowList(false)} onStatusChange={updateStatus} />}
         {showCreateModal && <CreateItineraryModal onClose={() => setShowCreateModal(false)} onCreate={handleCreate} onAuto={() => { setShowCreateModal(false); setShowAutoWizard(true) }} />}
         {showAutoWizard && <AutoItineraryWizard onClose={() => setShowAutoWizard(false)} onGenerate={handleAutoGenerate} generating={generating} />}
+        {addingPlace && itineraries.length > 0 && (
+          <AddToDayModal place={addingPlace} itineraries={itineraries} activeItinerary={activeItinerary}
+            onAdd={handleDaySelected} onClose={() => setAddingPlace(null)} />
+        )}
+        {showExplora && <ExploraMexico onClose={() => setShowExplora(false)} />}
       </>
     )
   }
 
   return (
     <div>
-      <Header itineraryCount={itineraries.length} activeItinerary={activeItinerary} onShowList={() => setShowList(true)} onNewItinerary={() => setShowCreateModal(true)} onExplora={() => {}} />
+      <Header itineraryCount={itineraries.length} activeItinerary={activeItinerary} onShowList={() => setShowList(true)} onNewItinerary={() => setShowCreateModal(true)} onExplora={() => setShowExplora(true)} />
       <main className={styles.main}>
         <div className={styles.hero}>
           <h1 className={styles.heroTitle}>Descubre lo <em>auténtico</em><br />donde estás</h1>
@@ -136,6 +144,7 @@ export default function App() {
       {showCreateModal && <CreateItineraryModal onClose={() => setShowCreateModal(false)} onCreate={handleCreate} onAuto={() => { setShowCreateModal(false); setShowAutoWizard(true) }} />}
       {showAutoWizard && <AutoItineraryWizard onClose={() => setShowAutoWizard(false)} onGenerate={handleAutoGenerate} generating={generating} />}
       {showList && <ItineraryList itineraries={itineraries} onSelect={handleSelectItinerary} onNew={() => { setShowList(false); setShowCreateModal(true) }} onClose={() => setShowList(false)} onStatusChange={updateStatus} />}
+      {showExplora && <ExploraMexico onClose={() => setShowExplora(false)} />}
       {addingPlace && itineraries.length > 0 && (
         <AddToDayModal
           place={addingPlace} itineraries={itineraries} activeItinerary={activeItinerary}

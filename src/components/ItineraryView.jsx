@@ -291,7 +291,7 @@ function buildMergedItemsStatic(day, allDays) {
   return items
 }
 
-export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDelete, onMove, onUpdateDayLabel, onUpdatePlace, onAddEvent, onUpdateEvent, onMoveEvent, onRemoveEvent, onUpdateSeparatorIdx }) {
+export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDelete, onMove, onUpdateDayLabel, onUpdatePlace, onAddEvent, onUpdateEvent, onMoveEvent, onRemoveEvent, onUpdateSeparatorIdx, onAddToAnotherDay }) {
   const [detailPlace, setDetailPlace] = useState(null)
   const [detailDayId, setDetailDayId] = useState(null)
   const [addingEventDayId, setAddingEventDayId] = useState(null)
@@ -558,7 +558,8 @@ export default function ItineraryView({ itinerary, onBack, onRemovePlace, onDele
 
       {detailPlace && (
         <PlaceDetailPanel place={detailPlace} dayId={detailDayId} itineraryId={itinerary.id}
-          onClose={()=>{setDetailPlace(null);setDetailDayId(null)}} onUpdate={onUpdatePlace} />
+          onClose={()=>{setDetailPlace(null);setDetailDayId(null)}} onUpdate={onUpdatePlace}
+          onAddToAnotherDay={onAddToAnotherDay} />
       )}
 
       {(addingEventDayId || editingEvent) && (

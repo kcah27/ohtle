@@ -115,3 +115,6 @@
 .reviewAvatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
 .reviewAuthor { font-size: 0.82rem; font-weight: 500; color: var(--dark); }
 .reviewText { font-size: 0.78rem; color: var(--light-text); line-height: 1.5; }
+
+.cloneBtn { width: 100%; padding: 0.7rem; background: var(--sand); border: 1.5px solid var(--accent); color: var(--accent); border-radius: 10px; font-size: 0.88rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; margin-bottom: 1rem; transition: all 0.15s; }
+.cloneBtn:hover { background: rgba(196,131,74,0.1); }
