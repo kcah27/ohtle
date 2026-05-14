@@ -246,8 +246,12 @@ window.initMap = function() {
         if (place.photos?.length) {
           currentPhotos = place.photos.slice(0,5).map(photo =>
             `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${key}`)
-          const dotsEl = document.getElementById('photo-dots')
-          dotsEl.innerHTML = currentPhotos.map((_,i) => `<div class="photo-dot${i===0?' active':''}" onclick="showPhotoIdx(${i})"></div>`).join('')
+          var dotsEl = document.getElementById('photo-dots')
+          var dotsHtml = ''
+          for(var di=0; di<currentPhotos.length; di++) {
+            dotsHtml += '<div class="photo-dot' + (di===0?' active':'') + '" onclick="showPhotoIdx(' + di + ')"></div>'
+          }
+          dotsEl.innerHTML = dotsHtml
           showPhoto(0)
         }
 
@@ -269,18 +273,35 @@ window.initMap = function() {
         if (place.website)
           document.getElementById('detail-website').innerHTML = `<a class="detail-link" href="${place.website}" target="_blank">🌐 Sitio web</a>`
 
-        if (place.opening_hours?.weekday_text?.length)
-          document.getElementById('detail-hours').innerHTML = `<div class="detail-section">Horarios</div>${place.opening_hours.weekday_text.map(h=>`<div class="hour-row"><span>${h.split(':')[0]}</span><span>${h.split(/:(.*)/s)[1]?.trim()}</span></div>`).join('')}`
+        if (place.opening_hours && place.opening_hours.weekday_text && place.opening_hours.weekday_text.length) {
+          var hoursHtml = '<div class="detail-section">Horarios</div>'
+          place.opening_hours.weekday_text.forEach(function(h) {
+            var parts = h.split(':')
+            var day = parts[0]
+            var time = parts.slice(1).join(':').trim()
+            hoursHtml += '<div class="hour-row"><span>' + day + '</span><span>' + time + '</span></div>'
+          })
+          document.getElementById('detail-hours').innerHTML = hoursHtml
+        }
 
-        if (place.reviews?.length)
-          document.getElementById('detail-reviews').innerHTML = `<div class="detail-section">Reseñas destacadas</div>${place.reviews.slice(0,3).map(r=>`
-            <div class="review-card">
-              <div class="review-header">
-                <img class="review-avatar" src="${r.profile_photo_url||''}" onerror="this.style.display=&quot;none&quot;" />
-                <div><div class="review-author">${r.author_name}</div><div class="review-stars">${'★'.repeat(r.rating)}</div></div>
-              </div>
-              <div class="review-text">${(r.text||'').slice(0,200)}${r.text?.length>200?'...':''}</div>
-            </div>`).join('')}
+        if (place.reviews && place.reviews.length) {
+          var revHtml = '<div class="detail-section">Reseñas destacadas</div>'
+          place.reviews.slice(0,3).forEach(function(r) {
+            var stars = ''
+            for(var s=0; s<r.rating; s++) stars += '★'
+            var text = (r.text || '').slice(0, 200)
+            if (r.text && r.text.length > 200) text += '...'
+            revHtml += '<div class="review-card">'
+            revHtml += '<div class="review-header">'
+            revHtml += '<img class="review-avatar" src="' + (r.profile_photo_url||'') + '" onerror="this.style.display=\'none\'" />'
+            revHtml += '<div><div class="review-author">' + r.author_name + '</div>'
+            revHtml += '<div class="review-stars">' + stars + '</div></div>'
+            revHtml += '</div>'
+            revHtml += '<div class="review-text">' + text + '</div>'
+            revHtml += '</div>'
+          })
+          document.getElementById('detail-reviews').innerHTML = revHtml
+        }
 
       } catch(e) { document.getElementById('detail-loading').style.display = 'none' }
     }
